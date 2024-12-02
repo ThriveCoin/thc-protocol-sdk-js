@@ -1,0 +1,53 @@
+{
+  "name": "@thrivecoin/protocol-sdk",
+  "version": "0.1.0",
+  "description": "Thrive Protocol javascript SDK",
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.mjs",
+  "types": "types/index.d.ts",
+  "scripts": {
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "build:mjs": "tsc --project tsconfig.mjs.json",
+    "build:browser": "rollup -c",
+    "build": "npm run clean && npm run build:cjs && npm run build:mjs && npm run build:browser",
+    "clean": "rm -rf  ./dist/cjs ./dist/mjs ./dist/browser ./types",
+    "format": "npm run lint -- --fix",
+    "lint": "eslint . --ext .ts,.js",
+    "test": "npm run lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThriveCoin/thc-protocol-sdk-js.git"
+  },
+  "keywords": [
+    "thrive",
+    "thrivecoin",
+    "sdk"
+  ],
+  "author": "thrivecoin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ThriveCoin/thc-protocol-sdk-js/issues"
+  },
+  "homepage": "https://github.com/ThriveCoin/thc-protocol-sdk-js#readme",
+  "dependencies": {
+    "ethers": "^6.13.4"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.16.0",
+    "@typescript-eslint/parser": "^8.16.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-n": "^15.7.0",
+    "eslint-plugin-promise": "^6.6.0",
+    "eslint-plugin-standard": "^5.0.0",
+    "rollup": "^2.79.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "standard": "^17.1.2",
+    "typescript": "^5.7.2"
+  }
+}

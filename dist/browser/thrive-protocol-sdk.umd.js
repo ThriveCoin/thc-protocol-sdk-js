@@ -1,0 +1,2 @@
+!function(e,o){"object"==typeof exports&&"undefined"!=typeof module?o(exports):"function"==typeof define&&define.amd?define(["exports"],o):o((e="undefined"!=typeof globalThis?globalThis:e||self).ThriveProtocolSDK={})}(this,(function(e){"use strict";e.ThriveProtocol=class{constructor(e){this.provider=e}},Object.defineProperty(e,"__esModule",{value:!0})}));
+//# sourceMappingURL=thrive-protocol-sdk.umd.js.map
