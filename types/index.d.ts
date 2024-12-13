@@ -1,2 +1,2 @@
-import { ThriveProtocol } from "./ThriveProtocol";
-export { ThriveProtocol };
+export { ThriveProtocol } from './ThriveProtocol'
+export { ThriveBridgeSource, ThriveBridgeDestination, ThriveBridgeEvent, ThriveBridgeSourceType } from './ThriveBridge'
