@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { EventEmitter } from 'events';
 import ThriveIERC20WrapperABI from './abis/ThriveIERC20Wrapper.json';
 import ThriveBridgeSourceIERC20ABI from './abis/ThriveBridgeSourceIERC20.json';
 import ThriveBridgeSourceNativeABI from './abis/ThriveBridgeSourceNative.json';
@@ -23,6 +24,8 @@ export class ThriveBridge {
             ...ThriveBridgeSourceIERC20ABI.filter(x => x.type === 'event'),
             ...ThriveBridgeDestinationABI.filter(x => x.type === 'event')
         ]);
+        this.eventListener =
+            new EventEmitter({ captureRejections: true });
     }
     async prepareSignature(contract, sender, receiver, amount, nonce) {
         if (!this.wallet) {
@@ -70,6 +73,17 @@ export class ThriveBridge {
         }
         return events;
     }
+    onBridgeEvents(type, listener) {
+        this.eventListener.addListener(type, listener);
+    }
+    offBridgeEvents(type, listener) {
+        if (listener) {
+            this.eventListener.removeListener(type, listener);
+        }
+        else {
+            this.eventListener.removeAllListeners(type);
+        }
+    }
 }
 export class ThriveBridgeSource extends ThriveBridge {
     constructor(params) {
@@ -116,6 +130,12 @@ export class ThriveBridgeSource extends ThriveBridge {
     async getBridgeEvents(type, from, to) {
         return super.getBridgeEvents(type, from, to);
     }
+    onBridgeEvents(type, listener) {
+        super.onBridgeEvents(type, listener);
+    }
+    offBridgeEvents(type, listener) {
+        super.offBridgeEvents(type, listener);
+    }
 }
 export class ThriveBridgeDestination extends ThriveBridge {
     constructor(params) {
@@ -152,5 +172,11 @@ export class ThriveBridgeDestination extends ThriveBridge {
     }
     async getBridgeEvents(type, from, to) {
         return super.getBridgeEvents(type, from, to);
+    }
+    onBridgeEvents(type, listener) {
+        super.onBridgeEvents(type, listener);
+    }
+    offBridgeEvents(type, listener) {
+        super.offBridgeEvents(type, listener);
     }
 }

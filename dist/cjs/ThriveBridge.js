@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ThriveBridgeDestination = exports.ThriveBridgeSource = exports.ThriveBridge = exports.ThriveBridgeSourceType = void 0;
 const ethers_1 = require("ethers");
+const events_1 = require("events");
 const ThriveIERC20Wrapper_json_1 = __importDefault(require("./abis/ThriveIERC20Wrapper.json"));
 const ThriveBridgeSourceIERC20_json_1 = __importDefault(require("./abis/ThriveBridgeSourceIERC20.json"));
 const ThriveBridgeSourceNative_json_1 = __importDefault(require("./abis/ThriveBridgeSourceNative.json"));
@@ -29,6 +30,8 @@ class ThriveBridge {
             ...ThriveBridgeSourceIERC20_json_1.default.filter(x => x.type === 'event'),
             ...ThriveBridgeDestination_json_1.default.filter(x => x.type === 'event')
         ]);
+        this.eventListener =
+            new events_1.EventEmitter({ captureRejections: true });
     }
     async prepareSignature(contract, sender, receiver, amount, nonce) {
         if (!this.wallet) {
@@ -75,6 +78,17 @@ class ThriveBridge {
             });
         }
         return events;
+    }
+    onBridgeEvents(type, listener) {
+        this.eventListener.addListener(type, listener);
+    }
+    offBridgeEvents(type, listener) {
+        if (listener) {
+            this.eventListener.removeListener(type, listener);
+        }
+        else {
+            this.eventListener.removeAllListeners(type);
+        }
     }
 }
 exports.ThriveBridge = ThriveBridge;
@@ -123,6 +137,12 @@ class ThriveBridgeSource extends ThriveBridge {
     async getBridgeEvents(type, from, to) {
         return super.getBridgeEvents(type, from, to);
     }
+    onBridgeEvents(type, listener) {
+        super.onBridgeEvents(type, listener);
+    }
+    offBridgeEvents(type, listener) {
+        super.offBridgeEvents(type, listener);
+    }
 }
 exports.ThriveBridgeSource = ThriveBridgeSource;
 class ThriveBridgeDestination extends ThriveBridge {
@@ -160,6 +180,12 @@ class ThriveBridgeDestination extends ThriveBridge {
     }
     async getBridgeEvents(type, from, to) {
         return super.getBridgeEvents(type, from, to);
+    }
+    onBridgeEvents(type, listener) {
+        super.onBridgeEvents(type, listener);
+    }
+    offBridgeEvents(type, listener) {
+        super.offBridgeEvents(type, listener);
     }
 }
 exports.ThriveBridgeDestination = ThriveBridgeDestination;

@@ -1,4 +1,5 @@
 import { ethers } from 'ethers'
+import { EventEmitter } from 'events'
 
 import ThriveIERC20WrapperABI from './abis/ThriveIERC20Wrapper.json'
 import ThriveBridgeSourceIERC20ABI from './abis/ThriveBridgeSourceIERC20.json'
@@ -24,11 +25,16 @@ export interface ThriveBridgeEvent {
   tx: string
 }
 
+export type ThriveBridgeEventKey = 'TokenLocked' | 'TokenUnlocked' | 'TokenMinted' | 'TokenBurned'
+export type ThriveBridgeSourceEventKey = 'TokenLocked' | 'TokenUnlocked'
+export type ThriveBridgeDestinationEventKey = 'TokenMinted' | 'TokenBurned'
+export type ThriveBridgeEventListener = (event: ThriveBridgeEvent) => void
+
 export interface ThriveBridgeOptions {
   wallet?: ethers.Wallet,
   provider?: ethers.Provider,
-  sourceAddress: string;
-  destinationAddress: string;
+  sourceAddress: string
+  destinationAddress: string
   tokenAddress?: string,
 }
 
@@ -42,6 +48,7 @@ export abstract class ThriveBridge {
   protected tokenDecimals?: number
   protected bridgeContract!: ethers.Contract
   protected eventInterface: ethers.Interface
+  protected eventListener: EventEmitter<Record<ThriveBridgeEventKey, [event: ThriveBridgeEvent]>>
 
   constructor (params: ThriveBridgeOptions) {
     this.wallet = params.wallet
@@ -58,6 +65,9 @@ export abstract class ThriveBridge {
       ...ThriveBridgeSourceIERC20ABI.filter(x => x.type === 'event'),
       ...ThriveBridgeDestinationABI.filter(x => x.type === 'event')
     ])
+
+    this.eventListener =
+      new EventEmitter<Record<ThriveBridgeEventKey, [event: ThriveBridgeEvent]>>({ captureRejections: true })
   }
 
   protected async prepareSignature (contract: string, sender: string, receiver: string, amount: string, nonce: string) {
@@ -93,7 +103,7 @@ export abstract class ThriveBridge {
     return this.wallet.address
   }
 
-  async getBridgeEvents (type: string, from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]> {
+  async getBridgeEvents (type: ThriveBridgeEventKey, from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]> {
     const eventFilter = this.bridgeContract.filters[type]()
     from = typeof from !== 'number' && from !== 'latest' ? +(from.toString()) : from
     to = typeof to !== 'number' && to !== 'latest' ? +(to.toString()) : to
@@ -120,6 +130,18 @@ export abstract class ThriveBridge {
     }
 
     return events
+  }
+
+  public onBridgeEvents (type: ThriveBridgeEventKey, listener: ThriveBridgeEventListener) {
+    this.eventListener.addListener(type, listener)
+  }
+
+  public offBridgeEvents (type: ThriveBridgeEventKey, listener?: ThriveBridgeEventListener) {
+    if (listener) {
+      this.eventListener.removeListener(type, listener)
+    } else {
+      this.eventListener.removeAllListeners(type)
+    }
   }
 }
 
@@ -193,6 +215,14 @@ export class ThriveBridgeSource extends ThriveBridge {
   ): Promise<ThriveBridgeEvent[]> {
     return super.getBridgeEvents(type, from, to)
   }
+
+  public onBridgeEvents (type: ThriveBridgeSourceEventKey, listener: ThriveBridgeEventListener) {
+    super.onBridgeEvents(type, listener)
+  }
+
+  public offBridgeEvents (type: ThriveBridgeSourceEventKey, listener?: ThriveBridgeEventListener) {
+    super.offBridgeEvents(type, listener)
+  }
 }
 
 export class ThriveBridgeDestination extends ThriveBridge {
@@ -248,5 +278,13 @@ export class ThriveBridgeDestination extends ThriveBridge {
     type: 'TokenMinted' | 'TokenBurned', from: BlockRange, to: BlockRange
   ): Promise<ThriveBridgeEvent[]> {
     return super.getBridgeEvents(type, from, to)
+  }
+
+  public onBridgeEvents (type: ThriveBridgeDestinationEventKey, listener: ThriveBridgeEventListener) {
+    super.onBridgeEvents(type, listener)
+  }
+
+  public offBridgeEvents (type: ThriveBridgeDestinationEventKey, listener?: ThriveBridgeEventListener) {
+    super.offBridgeEvents(type, listener)
   }
 }
