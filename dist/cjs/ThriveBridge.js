@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ThriveBridgeDestination = exports.ThriveBridgeSource = exports.ThriveBridge = exports.ThriveBridgeSourceType = void 0;
+exports.ThriveBridgeDestination = exports.ThriveBridgeSource = exports.ThriveBridge = exports.ThriveBridgeEventEnum = exports.ThriveBridgeSourceType = void 0;
 const ethers_1 = require("ethers");
 const events_1 = require("events");
 const ThriveIERC20Wrapper_json_1 = __importDefault(require("./abis/ThriveIERC20Wrapper.json"));
@@ -16,8 +16,21 @@ var ThriveBridgeSourceType;
     ThriveBridgeSourceType["IERC20"] = "IERC20";
     ThriveBridgeSourceType["NATIVE"] = "NATIVE";
 })(ThriveBridgeSourceType || (exports.ThriveBridgeSourceType = ThriveBridgeSourceType = {}));
+var ThriveBridgeEventEnum;
+(function (ThriveBridgeEventEnum) {
+    ThriveBridgeEventEnum["TokenLocked"] = "TokenLocked";
+    ThriveBridgeEventEnum["TokenUnlocked"] = "TokenUnlocked";
+    ThriveBridgeEventEnum["TokenMinted"] = "TokenMinted";
+    ThriveBridgeEventEnum["TokenBurned"] = "TokenBurned";
+})(ThriveBridgeEventEnum || (exports.ThriveBridgeEventEnum = ThriveBridgeEventEnum = {}));
 class ThriveBridge {
     constructor(params) {
+        this.eventListenerCount = new Map([
+            [ThriveBridgeEventEnum.TokenLocked, 0],
+            [ThriveBridgeEventEnum.TokenUnlocked, 0],
+            [ThriveBridgeEventEnum.TokenMinted, 0],
+            [ThriveBridgeEventEnum.TokenBurned, 0]
+        ]);
         this.wallet = params.wallet;
         this.provider = params.provider;
         this.sourceAddress = params.sourceAddress;
@@ -67,8 +80,8 @@ class ThriveBridge {
                 continue;
             }
             events.push({
-                sender: parsed.args[0],
-                receiver: parsed.args[1],
+                sender: parsed.args[0].toString(),
+                receiver: parsed.args[1].toString(),
                 amount: parsed.args[2].toString(),
                 timestamp: Number(parsed.args[3]) * 1000,
                 nonce: parsed.args[4].toString(),
@@ -79,15 +92,43 @@ class ThriveBridge {
         }
         return events;
     }
-    onBridgeEvents(type, listener) {
-        this.eventListener.addListener(type, listener);
+    eventListenerFunc(sender, receiver, amount, timestamp, nonce, signature, ev) {
+        this.eventListener.emit(ev.fragment.name, {
+            sender: sender.toString(),
+            receiver: receiver.toString(),
+            amount: amount.toString(),
+            timestamp: Number(timestamp) * 1000,
+            nonce: nonce.toString(),
+            signature: signature.toString(),
+            block: ev.log.blockNumber.toString(),
+            tx: ev.log.transactionHash
+        });
     }
-    offBridgeEvents(type, listener) {
+    onBridgeEvent(type, listener) {
+        this.eventListener.addListener(type, listener);
+        const count = this.eventListenerCount.get(type);
+        if (count === 0) {
+            // set listener on contract
+            this.bridgeContract.on(type, this.eventListenerFunc.bind(this));
+        }
+        this.eventListenerCount.set(type, count + 1);
+    }
+    offBridgeEvent(type, listener) {
         if (listener) {
             this.eventListener.removeListener(type, listener);
+            const count = this.eventListenerCount.get(type) - 1;
+            if (count === 0) {
+                // set off listener on contract
+                this.bridgeContract.off(type);
+            }
+            if (count >= 0) {
+                this.eventListenerCount.set(type, count);
+            }
         }
         else {
             this.eventListener.removeAllListeners(type);
+            this.bridgeContract.off(type);
+            this.eventListenerCount.set(type, 0);
         }
     }
 }
@@ -137,11 +178,11 @@ class ThriveBridgeSource extends ThriveBridge {
     async getBridgeEvents(type, from, to) {
         return super.getBridgeEvents(type, from, to);
     }
-    onBridgeEvents(type, listener) {
-        super.onBridgeEvents(type, listener);
+    onBridgeEvent(type, listener) {
+        super.onBridgeEvent(type, listener);
     }
-    offBridgeEvents(type, listener) {
-        super.offBridgeEvents(type, listener);
+    offBridgeEvent(type, listener) {
+        super.offBridgeEvent(type, listener);
     }
 }
 exports.ThriveBridgeSource = ThriveBridgeSource;
@@ -181,11 +222,11 @@ class ThriveBridgeDestination extends ThriveBridge {
     async getBridgeEvents(type, from, to) {
         return super.getBridgeEvents(type, from, to);
     }
-    onBridgeEvents(type, listener) {
-        super.onBridgeEvents(type, listener);
+    onBridgeEvent(type, listener) {
+        super.onBridgeEvent(type, listener);
     }
-    offBridgeEvents(type, listener) {
-        super.offBridgeEvents(type, listener);
+    offBridgeEvent(type, listener) {
+        super.offBridgeEvent(type, listener);
     }
 }
 exports.ThriveBridgeDestination = ThriveBridgeDestination;

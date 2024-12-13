@@ -15,6 +15,12 @@ export interface ThriveBridgeEvent {
     block: string;
     tx: string;
 }
+export declare enum ThriveBridgeEventEnum {
+    'TokenLocked' = 'TokenLocked',
+    'TokenUnlocked' = 'TokenUnlocked',
+    'TokenMinted' = 'TokenMinted',
+    'TokenBurned' = 'TokenBurned'
+}
 export type ThriveBridgeEventKey = 'TokenLocked' | 'TokenUnlocked' | 'TokenMinted' | 'TokenBurned';
 export type ThriveBridgeSourceEventKey = 'TokenLocked' | 'TokenUnlocked';
 export type ThriveBridgeDestinationEventKey = 'TokenMinted' | 'TokenBurned';
@@ -37,14 +43,16 @@ export declare abstract class ThriveBridge {
   protected bridgeContract: ethers.Contract
   protected eventInterface: ethers.Interface
   protected eventListener: EventEmitter<Record<ThriveBridgeEventKey, [event: ThriveBridgeEvent]>>
+  protected eventListenerCount: Map<ThriveBridgeEventKey, number>
   constructor(params: ThriveBridgeOptions);
   protected prepareSignature(contract: string, sender: string, receiver: string, amount: string, nonce: string): Promise<string>;
   protected getTokenDecimals(): Promise<number>;
   setWallet(wallet: ethers.Wallet): void;
   getWallet(): string;
   getBridgeEvents(type: ThriveBridgeEventKey, from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]>;
-  onBridgeEvents(type: ThriveBridgeEventKey, listener: ThriveBridgeEventListener): void;
-  offBridgeEvents(type: ThriveBridgeEventKey, listener?: ThriveBridgeEventListener): void;
+  protected eventListenerFunc(sender: string, receiver: string, amount: bigint, timestamp: bigint, nonce: bigint, signature: string, ev: ethers.ContractEventPayload): void;
+  onBridgeEvent(type: ThriveBridgeEventKey, listener: ThriveBridgeEventListener): void;
+  offBridgeEvent(type: ThriveBridgeEventKey, listener?: ThriveBridgeEventListener): void;
 }
 export declare class ThriveBridgeSource extends ThriveBridge {
   protected contractType: ThriveBridgeSourceType
@@ -68,9 +76,9 @@ export declare class ThriveBridgeSource extends ThriveBridge {
         signature: string;
     }): Promise<string>;
 
-  getBridgeEvents(type: 'TokenLocked' | 'TokenUnlocked', from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]>;
-  onBridgeEvents(type: ThriveBridgeSourceEventKey, listener: ThriveBridgeEventListener): void;
-  offBridgeEvents(type: ThriveBridgeSourceEventKey, listener?: ThriveBridgeEventListener): void;
+  getBridgeEvents(type: ThriveBridgeSourceEventKey, from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]>;
+  onBridgeEvent(type: ThriveBridgeSourceEventKey, listener: ThriveBridgeEventListener): void;
+  offBridgeEvent(type: ThriveBridgeSourceEventKey, listener?: ThriveBridgeEventListener): void;
 }
 export declare class ThriveBridgeDestination extends ThriveBridge {
   constructor(params: ThriveBridgeOptions & {
@@ -92,8 +100,8 @@ export declare class ThriveBridgeDestination extends ThriveBridge {
         amount?: string;
     }): Promise<string>;
 
-  getBridgeEvents(type: 'TokenMinted' | 'TokenBurned', from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]>;
-  onBridgeEvents(type: ThriveBridgeDestinationEventKey, listener: ThriveBridgeEventListener): void;
-  offBridgeEvents(type: ThriveBridgeDestinationEventKey, listener?: ThriveBridgeEventListener): void;
+  getBridgeEvents(type: ThriveBridgeDestinationEventKey, from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]>;
+  onBridgeEvent(type: ThriveBridgeDestinationEventKey, listener: ThriveBridgeEventListener): void;
+  offBridgeEvent(type: ThriveBridgeDestinationEventKey, listener?: ThriveBridgeEventListener): void;
 }
 export {}
