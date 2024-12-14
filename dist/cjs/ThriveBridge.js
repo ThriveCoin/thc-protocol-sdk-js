@@ -80,6 +80,7 @@ class ThriveBridge {
                 continue;
             }
             events.push({
+                type: type,
                 sender: parsed.args[0].toString(),
                 receiver: parsed.args[1].toString(),
                 amount: parsed.args[2].toString(),
@@ -93,7 +94,9 @@ class ThriveBridge {
         return events;
     }
     eventListenerFunc(sender, receiver, amount, timestamp, nonce, signature, ev) {
-        this.eventListener.emit(ev.fragment.name, {
+        const type = ev.fragment.name;
+        this.eventListener.emit(type, {
+            type,
             sender: sender.toString(),
             receiver: receiver.toString(),
             amount: amount.toString(),

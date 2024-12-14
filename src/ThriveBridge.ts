@@ -14,17 +14,6 @@ export enum ThriveBridgeSourceType {
   NATIVE = 'NATIVE'
 }
 
-export interface ThriveBridgeEvent {
-  sender: string,
-  receiver: string,
-  amount: string,
-  timestamp: number,
-  nonce: string,
-  signature: string,
-  block: string,
-  tx: string
-}
-
 export enum ThriveBridgeEventEnum {
   'TokenLocked' = 'TokenLocked',
   'TokenUnlocked' = 'TokenUnlocked',
@@ -35,6 +24,19 @@ export enum ThriveBridgeEventEnum {
 export type ThriveBridgeEventKey = 'TokenLocked' | 'TokenUnlocked' | 'TokenMinted' | 'TokenBurned'
 export type ThriveBridgeSourceEventKey = 'TokenLocked' | 'TokenUnlocked'
 export type ThriveBridgeDestinationEventKey = 'TokenMinted' | 'TokenBurned'
+
+export interface ThriveBridgeEvent {
+  type: ThriveBridgeEventKey,
+  sender: string,
+  receiver: string,
+  amount: string,
+  timestamp: number,
+  nonce: string,
+  signature: string,
+  block: string,
+  tx: string
+}
+
 export type ThriveBridgeEventListener = (event: ThriveBridgeEvent) => void
 
 export interface ThriveBridgeOptions {
@@ -131,6 +133,7 @@ export abstract class ThriveBridge {
         continue
       }
       events.push({
+        type,
         sender: parsed!.args[0].toString(),
         receiver: parsed!.args[1].toString(),
         amount: parsed!.args[2].toString(),
@@ -146,7 +149,9 @@ export abstract class ThriveBridge {
   }
 
   protected eventListenerFunc (sender: string, receiver: string, amount: bigint, timestamp: bigint, nonce: bigint, signature: string, ev: ethers.ContractEventPayload) {
-    this.eventListener.emit(ev.fragment.name as ThriveBridgeEventKey, {
+    const type = ev.fragment.name as ThriveBridgeEventKey
+    this.eventListener.emit(type, {
+      type,
       sender: sender.toString(),
       receiver: receiver.toString(),
       amount: amount.toString(),

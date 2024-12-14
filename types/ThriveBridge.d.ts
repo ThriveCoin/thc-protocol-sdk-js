@@ -5,16 +5,6 @@ export declare enum ThriveBridgeSourceType {
     IERC20 = 'IERC20',
     NATIVE = 'NATIVE'
 }
-export interface ThriveBridgeEvent {
-    sender: string;
-    receiver: string;
-    amount: string;
-    timestamp: number;
-    nonce: string;
-    signature: string;
-    block: string;
-    tx: string;
-}
 export declare enum ThriveBridgeEventEnum {
     'TokenLocked' = 'TokenLocked',
     'TokenUnlocked' = 'TokenUnlocked',
@@ -24,6 +14,17 @@ export declare enum ThriveBridgeEventEnum {
 export type ThriveBridgeEventKey = 'TokenLocked' | 'TokenUnlocked' | 'TokenMinted' | 'TokenBurned';
 export type ThriveBridgeSourceEventKey = 'TokenLocked' | 'TokenUnlocked';
 export type ThriveBridgeDestinationEventKey = 'TokenMinted' | 'TokenBurned';
+export interface ThriveBridgeEvent {
+    type: ThriveBridgeEventKey;
+    sender: string;
+    receiver: string;
+    amount: string;
+    timestamp: number;
+    nonce: string;
+    signature: string;
+    block: string;
+    tx: string;
+}
 export type ThriveBridgeEventListener = (event: ThriveBridgeEvent) => void;
 export interface ThriveBridgeOptions {
     wallet?: ethers.Wallet;
