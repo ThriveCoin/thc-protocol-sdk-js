@@ -31,7 +31,7 @@ const main = async () => {
   let res = await sdk.thriveBridgeSource.lockTokens({ receiver: srcWallet.address, amount: '1' })
   console.log('lock hash:', res)
   let srcToBlock = (await destProvider.getTransactionReceipt(res))!.blockNumber
-  let event = (await sdk.thriveBridgeSource.getBridgeEvents('TokenLocked', srcFromBlock, srcToBlock)).at(-1)
+  let event = (await sdk.thriveBridgeSource.getBridgeEventsFromHash(res)).at(0)
   console.log('lock event:', event)
   if (!event) {
     return

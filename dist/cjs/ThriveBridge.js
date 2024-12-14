@@ -11,6 +11,8 @@ const ThriveBridgeSourceIERC20_json_1 = __importDefault(require("./abis/ThriveBr
 const ThriveBridgeSourceNative_json_1 = __importDefault(require("./abis/ThriveBridgeSourceNative.json"));
 const ThriveBridgeDestination_json_1 = __importDefault(require("./abis/ThriveBridgeDestination.json"));
 const ThriveWalletMissingError_1 = __importDefault(require("./errors/ThriveWalletMissingError"));
+const ThriveProviderMissingError_1 = __importDefault(require("./errors/ThriveProviderMissingError"));
+const ThriveProviderTxNotFoundError_1 = __importDefault(require("./errors/ThriveProviderTxNotFoundError"));
 var ThriveBridgeSourceType;
 (function (ThriveBridgeSourceType) {
     ThriveBridgeSourceType["IERC20"] = "IERC20";
@@ -68,6 +70,45 @@ class ThriveBridge {
         }
         return this.wallet.address;
     }
+    async getBridgeEventsFromHash(hash) {
+        if (!this.provider) {
+            throw new ThriveProviderMissingError_1.default();
+        }
+        const receipt = await this.provider.getTransactionReceipt(hash);
+        if (!receipt) {
+            throw new ThriveProviderTxNotFoundError_1.default();
+        }
+        const address = await this.bridgeContract.getAddress();
+        const events = [];
+        receipt.logs.forEach((log) => {
+            if (log.address.toLowerCase() !== address.toLowerCase()) {
+                return;
+            }
+            try {
+                const parsed = this.eventInterface.parseLog(log);
+                if (!parsed) {
+                    return;
+                }
+                const type = parsed.fragment.name;
+                if (!Object.keys(ThriveBridgeEventEnum).includes(type)) {
+                    return;
+                }
+                events.push({
+                    type: type,
+                    sender: parsed.args[0].toString(),
+                    receiver: parsed.args[1].toString(),
+                    amount: parsed.args[2].toString(),
+                    timestamp: Number(parsed.args[3]) * 1000,
+                    nonce: parsed.args[4].toString(),
+                    signature: parsed.args[5].toString(),
+                    block: receipt.blockNumber.toString(),
+                    tx: hash
+                });
+            }
+            catch { }
+        });
+        return events;
+    }
     async getBridgeEvents(type, from, to) {
         const eventFilter = this.bridgeContract.filters[type]();
         from = typeof from !== 'number' && from !== 'latest' ? +(from.toString()) : from;
@@ -80,7 +121,7 @@ class ThriveBridge {
                 continue;
             }
             events.push({
-                type: type,
+                type,
                 sender: parsed.args[0].toString(),
                 receiver: parsed.args[1].toString(),
                 amount: parsed.args[2].toString(),
@@ -187,6 +228,9 @@ class ThriveBridgeSource extends ThriveBridge {
     offBridgeEvent(type, listener) {
         super.offBridgeEvent(type, listener);
     }
+    async isNonceProcessed(sender, nonce) {
+        return await this.bridgeContract.unlockNonces(sender, nonce);
+    }
 }
 exports.ThriveBridgeSource = ThriveBridgeSource;
 class ThriveBridgeDestination extends ThriveBridge {
@@ -230,6 +274,9 @@ class ThriveBridgeDestination extends ThriveBridge {
     }
     offBridgeEvent(type, listener) {
         super.offBridgeEvent(type, listener);
+    }
+    async isNonceProcessed(sender, nonce) {
+        return await this.bridgeContract.mintNonces(sender, nonce);
     }
 }
 exports.ThriveBridgeDestination = ThriveBridgeDestination;

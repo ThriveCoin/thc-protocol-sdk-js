@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumberish, ethers } from 'ethers';
 import { EventEmitter } from 'events';
 type BlockRange = string | number | bigint;
 export declare enum ThriveBridgeSourceType {
@@ -50,10 +50,12 @@ export declare abstract class ThriveBridge {
     protected getTokenDecimals(): Promise<number>;
     setWallet(wallet: ethers.Wallet): void;
     getWallet(): string;
+    getBridgeEventsFromHash(hash: string): Promise<ThriveBridgeEvent[]>;
     getBridgeEvents(type: ThriveBridgeEventKey, from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]>;
     protected eventListenerFunc(sender: string, receiver: string, amount: bigint, timestamp: bigint, nonce: bigint, signature: string, ev: ethers.ContractEventPayload): void;
     onBridgeEvent(type: ThriveBridgeEventKey, listener: ThriveBridgeEventListener): void;
     offBridgeEvent(type: ThriveBridgeEventKey, listener?: ThriveBridgeEventListener): void;
+    abstract isNonceProcessed(sender: string, nonce: BigNumberish): Promise<boolean>;
 }
 export declare class ThriveBridgeSource extends ThriveBridge {
     protected contractType: ThriveBridgeSourceType;
@@ -77,6 +79,7 @@ export declare class ThriveBridgeSource extends ThriveBridge {
     getBridgeEvents(type: ThriveBridgeSourceEventKey, from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]>;
     onBridgeEvent(type: ThriveBridgeSourceEventKey, listener: ThriveBridgeEventListener): void;
     offBridgeEvent(type: ThriveBridgeSourceEventKey, listener?: ThriveBridgeEventListener): void;
+    isNonceProcessed(sender: string, nonce: BigNumberish): Promise<boolean>;
 }
 export declare class ThriveBridgeDestination extends ThriveBridge {
     constructor(params: ThriveBridgeOptions & {
@@ -98,5 +101,6 @@ export declare class ThriveBridgeDestination extends ThriveBridge {
     getBridgeEvents(type: ThriveBridgeDestinationEventKey, from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]>;
     onBridgeEvent(type: ThriveBridgeDestinationEventKey, listener: ThriveBridgeEventListener): void;
     offBridgeEvent(type: ThriveBridgeDestinationEventKey, listener?: ThriveBridgeEventListener): void;
+    isNonceProcessed(sender: string, nonce: BigNumberish): Promise<boolean>;
 }
 export {};

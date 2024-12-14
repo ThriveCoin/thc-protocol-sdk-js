@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { BigNumberish, ethers } from 'ethers'
 import { EventEmitter } from 'events'
 
 import ThriveIERC20WrapperABI from './abis/ThriveIERC20Wrapper.json'
@@ -6,6 +6,8 @@ import ThriveBridgeSourceIERC20ABI from './abis/ThriveBridgeSourceIERC20.json'
 import ThriveBridgeSourceNativeABI from './abis/ThriveBridgeSourceNative.json'
 import ThriveBridgeDestinationABI from './abis/ThriveBridgeDestination.json'
 import ThriveWalletMissingError from './errors/ThriveWalletMissingError'
+import ThriveProviderMissingError from './errors/ThriveProviderMissingError'
+import ThriveProviderTxNotFoundError from './errors/ThriveProviderTxNotFoundError'
 
 type BlockRange = string | number | bigint
 
@@ -118,6 +120,49 @@ export abstract class ThriveBridge {
     return this.wallet.address
   }
 
+  async getBridgeEventsFromHash (hash: string): Promise<ThriveBridgeEvent[]> {
+    if (!this.provider) {
+      throw new ThriveProviderMissingError()
+    }
+    const receipt = await this.provider.getTransactionReceipt(hash)
+    if (!receipt) {
+      throw new ThriveProviderTxNotFoundError()
+    }
+
+    const address = await this.bridgeContract.getAddress()
+    const events: ThriveBridgeEvent[] = []
+
+    receipt.logs.forEach((log) => {
+      if (log.address.toLowerCase() !== address.toLowerCase()) {
+        return
+      }
+      try {
+        const parsed = this.eventInterface.parseLog(log)
+        if (!parsed) {
+          return
+        }
+        const type = parsed.fragment.name
+        if (!Object.keys(ThriveBridgeEventEnum).includes(type)) {
+          return
+        }
+
+        events.push({
+          type: type as ThriveBridgeEventKey,
+          sender: parsed!.args[0].toString(),
+          receiver: parsed!.args[1].toString(),
+          amount: parsed!.args[2].toString(),
+          timestamp: Number(parsed!.args[3]) * 1000,
+          nonce: parsed!.args[4].toString(),
+          signature: parsed!.args[5].toString(),
+          block: receipt.blockNumber.toString(),
+          tx: hash
+        })
+      } catch { }
+    })
+
+    return events
+  }
+
   async getBridgeEvents (type: ThriveBridgeEventKey, from: BlockRange, to: BlockRange): Promise<ThriveBridgeEvent[]> {
     const eventFilter = this.bridgeContract.filters[type]()
     from = typeof from !== 'number' && from !== 'latest' ? +(from.toString()) : from
@@ -190,6 +235,8 @@ export abstract class ThriveBridge {
       this.eventListenerCount.set(type, 0)
     }
   }
+
+  public abstract isNonceProcessed (sender: string, nonce: BigNumberish): Promise<boolean>
 }
 
 export class ThriveBridgeSource extends ThriveBridge {
@@ -270,6 +317,10 @@ export class ThriveBridgeSource extends ThriveBridge {
   public offBridgeEvent (type: ThriveBridgeSourceEventKey, listener?: ThriveBridgeEventListener) {
     super.offBridgeEvent(type, listener)
   }
+
+  public async isNonceProcessed (sender: string, nonce: BigNumberish): Promise<boolean> {
+    return await this.bridgeContract.unlockNonces(sender, nonce)
+  }
 }
 
 export class ThriveBridgeDestination extends ThriveBridge {
@@ -333,5 +384,9 @@ export class ThriveBridgeDestination extends ThriveBridge {
 
   public offBridgeEvent (type: ThriveBridgeDestinationEventKey, listener?: ThriveBridgeEventListener) {
     super.offBridgeEvent(type, listener)
+  }
+
+  public async isNonceProcessed (sender: string, nonce: BigNumberish): Promise<boolean> {
+    return await this.bridgeContract.mintNonces(sender, nonce)
   }
 }
