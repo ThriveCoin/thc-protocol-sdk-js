@@ -6,6 +6,7 @@ import ThriveWorkerUnitFactoryABI from './abis/ThriveWorkerUnitFactory.json'
 import ThriveWalletMissingError from './errors/ThriveWalletMissingError'
 import ThriveProviderMissingError from './errors/ThriveProviderMissingError'
 import ThriveProviderTxNotFoundError from './errors/ThriveProviderTxNotFoundError'
+import ThriveContractNotInitializedError from './errors/ThriveContractNotInitialized'
 
 export enum ThriveWorkerUnitTokenType {
   IERC20 = 'IERC20',
@@ -36,19 +37,25 @@ export interface ThriveWorkerUnitEvent {
 export type ThriveWorkerUnitEventListener = (event: ThriveWorkerUnitEvent) => void
 
 export interface ThriveWorkerUnitOptions {
-  wallet?: ethers.Wallet,
-  provider?: ethers.Provider,
-  contractAddress: string,
-  factoryAddress?: string
+  moderator?: string,
+  rewardToken?: string,
+  rewardAmount?: string,
+  maxRewards?: string,
+  validationRewardAmount?: string,
+  deadline: string,
+  maxCompletionsPerUser: number,
+  validators: Array<string>,
+  assignedContributor: string,
+  badgeQuery: string,
 }
 
 export class ThriveWorkerUnit {
   protected wallet?: ethers.Wallet
   protected provider?: ethers.Provider
-  protected contractAddress: string
-  protected factoryAddress?: string
-  protected contract: ethers.Contract
-  protected factoryContract?: ethers.Contract
+  protected contractAddress?: string
+  protected factoryAddress: string
+  protected contract?: ethers.Contract
+  protected factoryContract: ethers.Contract
   protected eventInterface: ethers.Interface
   protected eventListener: EventEmitter<Record<ThriveWorkerUnitEventKey, [event: ThriveWorkerUnitEvent]>>
   protected eventListenerCount = new Map<ThriveWorkerUnitEventKey, number>([
@@ -57,41 +64,25 @@ export class ThriveWorkerUnit {
     [ThriveWorkerUnitEventEnum.Withdrawn, 0]
   ])
 
-  constructor (params: ThriveWorkerUnitOptions) {
-    this.wallet = params.wallet
-    this.provider = params.provider
-    this.contractAddress = params.contractAddress
-    this.factoryAddress = params.factoryAddress
+  constructor (_factoryAddress: string, _wallet: ethers.Wallet, _provider: ethers.Provider, _contractAddress?: string) {
+    this.wallet = _wallet
+    this.provider = _provider
+    this.contractAddress = _contractAddress
+    this.factoryAddress = _factoryAddress
 
-    this.contract = new ethers.Contract(this.contractAddress, ThriveWorkerUnitABI, this.wallet ?? this.provider)
+    this.factoryContract = new ethers.Contract(this.factoryAddress, ThriveWorkerUnitFactoryABI, this.wallet ?? this.provider)
 
-    if (this.factoryAddress) {
-      this.factoryContract = new ethers.Contract(this.factoryAddress, ThriveWorkerUnitFactoryABI, this.wallet ?? this.provider)
+    if (this.contractAddress) {
+      this.contract = new ethers.Contract(this.contractAddress, ThriveWorkerUnitABI, this.wallet ?? this.provider)
     }
 
     this.eventInterface = new ethers.Interface(ThriveWorkerUnitABI.filter(x => x.type === 'event'))
     this.eventListener = new EventEmitter<Record<ThriveWorkerUnitEventKey, [event: ThriveWorkerUnitEvent]>>({ captureRejections: true })
   }
 
-  protected async prepareSignature (contract: string, sender: string, receiver: string, amount: string, nonce: string) {
-    if (!this.wallet) {
-      throw new ThriveWalletMissingError()
-    }
-
-    const hash = ethers.keccak256(
-      ethers.solidityPacked(
-        ['address', 'address', 'address', 'uint256', 'uint256'],
-        [contract, sender, receiver, nonce, amount]
-      )
-    )
-    const signature = await this.wallet.signMessage(ethers.getBytes(hash))
-
-    return signature
-  }
-
   public setWallet (wallet: ethers.Wallet) {
     this.wallet = wallet
-    this.contract = this.contract.connect(this.wallet) as ethers.Contract
+    this.contract = this.contract?.connect(this.wallet) as ethers.Contract
     if (this.factoryContract) {
       this.factoryContract = this.factoryContract.connect(this.wallet) as ethers.Contract
     }
@@ -109,7 +100,7 @@ export class ThriveWorkerUnit {
       throw new ThriveWalletMissingError()
     }
     if (!this.factoryContract) {
-      throw new Error('Factory contract is not initialized')
+      throw new Error('Factory contract is not deployed')
     }
 
     const tx = await this.factoryContract.createThriveWorkerUnit(...args)
@@ -118,6 +109,10 @@ export class ThriveWorkerUnit {
     const event = receipt.events?.find((e: { event: string }) => e.event === 'NewWorkerUnitCreated')
     if (event) {
       const newContractAddress = event.args?.[0]
+
+      this.contractAddress = newContractAddress
+      this.contract = new ethers.Contract(newContractAddress, ThriveWorkerUnitABI, this.wallet ?? this.provider)
+
       return newContractAddress
     }
 
@@ -133,11 +128,11 @@ export class ThriveWorkerUnit {
       throw new ThriveProviderTxNotFoundError()
     }
 
-    const address = await this.contract.getAddress()
+    const address = await this.contract?.getAddress()
     const events: ThriveWorkerUnitEvent[] = []
 
     receipt.logs.forEach((log) => {
-      if (log.address.toLowerCase() !== address.toLowerCase()) {
+      if (log.address.toLowerCase() !== address?.toLowerCase()) {
         return
       }
       try {
@@ -188,7 +183,7 @@ export class ThriveWorkerUnit {
     this.eventListener.addListener(type, listener)
     const count = this.eventListenerCount.get(type)!
     if (count === 0) {
-      this.contract.on(type, this.eventListenerFunc.bind(this))
+      this.contract?.on(type, this.eventListenerFunc.bind(this))
     }
     this.eventListenerCount.set(type, count + 1)
   }
@@ -198,15 +193,129 @@ export class ThriveWorkerUnit {
       this.eventListener.removeListener(type, listener)
       const count = this.eventListenerCount.get(type)! - 1
       if (count === 0) {
-        this.contract.off(type)
+        this.contract?.off(type)
       }
       if (count >= 0) {
         this.eventListenerCount.set(type, count)
       }
     } else {
       this.eventListener.removeAllListeners(type)
-      this.contract.off(type)
+      this.contract?.off(type)
       this.eventListenerCount.set(type, 0)
     }
+  }
+
+  public async initialize (
+    value: string
+  ): Promise<string> {
+    if (!this.wallet) throw new ThriveWalletMissingError()
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    const tx = await this.contract.initialize({
+      value
+    })
+    await tx.wait()
+
+    return tx.hash
+  }
+
+  public async confirm (
+    contributor: string,
+    inputValidationMetadata: string
+  ): Promise<string> {
+    if (!this.wallet) throw new ThriveWalletMissingError()
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    const tx = await this.contract.confirm(
+      contributor,
+      inputValidationMetadata
+    )
+    await tx.wait()
+
+    return tx.hash
+  }
+
+  public async setAssignedContributor (contributor: string): Promise<string> {
+    if (!this.wallet) throw new ThriveWalletMissingError()
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    const tx = await this.contract.setAssignedContributor(contributor)
+    await tx.wait()
+
+    return tx.hash
+  }
+
+  public async addRequiredBadge (badge: string): Promise<string> {
+    if (!this.wallet) throw new ThriveWalletMissingError()
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    const tx = await this.contract.addRequiredBadge(badge)
+    await tx.wait()
+
+    return tx.hash
+  }
+
+  public async removeRequiredBadge (badge: string): Promise<string> {
+    if (!this.wallet) throw new ThriveWalletMissingError()
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    const tx = await this.contract.removeRequiredBadge(badge)
+    await tx.wait()
+
+    return tx.hash
+  }
+
+  public async setMetadata (
+    metadata: string,
+    metadataVersion: string
+  ): Promise<string> {
+    if (!this.wallet) throw new ThriveWalletMissingError()
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    const metadataTx = await this.contract.setMetadata(metadata)
+    const versionTx = await this.contract.setMetadataVersion(metadataVersion)
+
+    await metadataTx.wait()
+    await versionTx.wait()
+
+    return JSON.stringify({
+      metadata: metadataTx.hash,
+      metadataVersion: versionTx.hash
+    })
+  }
+
+  public async setDeadline (deadline: number): Promise<string> {
+    if (!this.wallet) throw new ThriveWalletMissingError()
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    const tx = await this.contract.setDeadline(deadline)
+    await tx.wait()
+
+    return tx.hash
+  }
+
+  public async withdrawRemaining (): Promise<string> {
+    if (!this.wallet) throw new ThriveWalletMissingError()
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    const tx = await this.contract.withdrawRemaining()
+    await tx.wait()
+
+    return tx.hash
+  }
+
+  public async getValidators (): Promise<string[]> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+    return await this.contract.getValidators()
+  }
+
+  public async getRequiredBadges (): Promise<string[]> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+    return await this.contract.getRequiredBadges()
+  }
+
+  public async status (): Promise<string> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+    return await this.contract.status()
   }
 }
