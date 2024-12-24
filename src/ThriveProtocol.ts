@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
 import { ThriveBridgeDestination, ThriveBridgeSource, ThriveBridgeSourceType } from './ThriveBridge'
+import { ThriveWorkerUnit } from './ThriveWorkerUnit'
 import ThriveFeatureNotInitializedError from './errors/ThriveFeatureNotInitializedError'
 
 export interface ThriveProtocolOptions {
@@ -15,6 +16,12 @@ export interface ThriveProtocolOptions {
     destinationProvider?: ethers.Provider,
     destinationAddress: string;
     destinationTokenAddress: string;
+  },
+  worker?: {
+    factoryAddress: string,
+    wallet: ethers.Wallet,
+    provider: ethers.Provider,
+    contractAddress?: string
   }
 }
 
@@ -23,6 +30,7 @@ export class ThriveProtocol {
   protected wallet?: ethers.Wallet
   protected _thriveBridgeSource?: ThriveBridgeSource
   protected _thriveBridgeDestination?: ThriveBridgeDestination
+  protected _thriveWorkerUnit?: ThriveWorkerUnit
 
   constructor (params: ThriveProtocolOptions) {
     this.provider = params.provider
@@ -45,6 +53,15 @@ export class ThriveProtocol {
         tokenAddress: params.bridge.destinationTokenAddress
       })
     }
+
+    if (params.worker) {
+      this._thriveWorkerUnit = new ThriveWorkerUnit(
+        params.worker.factoryAddress,
+        params.worker.wallet ?? params.wallet,
+        params.worker.provider ?? params.provider,
+        params.worker.contractAddress
+      )
+    }
   }
 
   get thriveBridgeSource (): ThriveBridgeSource {
@@ -59,5 +76,12 @@ export class ThriveProtocol {
       throw new ThriveFeatureNotInitializedError()
     }
     return this._thriveBridgeDestination
+  }
+
+  get thriveWorkerUnit (): ThriveWorkerUnit {
+    if (!this._thriveWorkerUnit) {
+      throw new ThriveFeatureNotInitializedError()
+    }
+    return this._thriveWorkerUnit
   }
 }
