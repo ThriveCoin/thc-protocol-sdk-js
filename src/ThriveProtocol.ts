@@ -17,7 +17,7 @@ export interface ThriveProtocolOptions {
     destinationAddress: string;
     destinationTokenAddress: string;
   },
-  worker?: {
+  workerUnit?: {
     factoryAddress: string,
     wallet: ethers.Wallet,
     provider: ethers.Provider,
@@ -54,12 +54,12 @@ export class ThriveProtocol {
       })
     }
 
-    if (params.worker) {
+    if (params.workerUnit) {
       this._thriveWorkerUnit = new ThriveWorkerUnit(
-        params.worker.factoryAddress,
-        params.worker.wallet ?? params.wallet,
-        params.worker.provider ?? params.provider,
-        params.worker.contractAddress
+        params.workerUnit.factoryAddress,
+        params.workerUnit.wallet ?? params.wallet,
+        params.workerUnit.provider ?? params.provider,
+        params.workerUnit.contractAddress
       )
     }
   }

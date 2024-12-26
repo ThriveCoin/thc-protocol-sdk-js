@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ThriveProtocol = void 0;
 const ThriveBridge_1 = require("./ThriveBridge");
+const ThriveWorkerUnit_1 = require("./ThriveWorkerUnit");
 const ThriveFeatureNotInitializedError_1 = __importDefault(require("./errors/ThriveFeatureNotInitializedError"));
 class ThriveProtocol {
     constructor(params) {
@@ -27,6 +28,9 @@ class ThriveProtocol {
                 tokenAddress: params.bridge.destinationTokenAddress
             });
         }
+        if (params.workerUnit) {
+            this._thriveWorkerUnit = new ThriveWorkerUnit_1.ThriveWorkerUnit(params.workerUnit.factoryAddress, params.workerUnit.wallet ?? params.wallet, params.workerUnit.provider ?? params.provider, params.workerUnit.contractAddress);
+        }
     }
     get thriveBridgeSource() {
         if (!this._thriveBridgeSource) {
@@ -39,6 +43,12 @@ class ThriveProtocol {
             throw new ThriveFeatureNotInitializedError_1.default();
         }
         return this._thriveBridgeDestination;
+    }
+    get thriveWorkerUnit() {
+        if (!this._thriveWorkerUnit) {
+            throw new ThriveFeatureNotInitializedError_1.default();
+        }
+        return this._thriveWorkerUnit;
     }
 }
 exports.ThriveProtocol = ThriveProtocol;
