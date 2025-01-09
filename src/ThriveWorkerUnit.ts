@@ -3,6 +3,7 @@ import { EventEmitter } from 'events'
 
 import ThriveWorkerUnitABI from './abis/ThriveWorkerUnit.json'
 import ThriveWorkerUnitFactoryABI from './abis/ThriveWorkerUnitFactory.json'
+import ThriveIERC20WrapperABI from './abis/ThriveIERC20Wrapper.json'
 import ThriveWalletMissingError from './errors/ThriveWalletMissingError'
 import ThriveProviderMissingError from './errors/ThriveProviderMissingError'
 import ThriveProviderTxNotFoundError from './errors/ThriveProviderTxNotFoundError'
@@ -37,12 +38,13 @@ export interface ThriveWorkerUnitEvent {
 export type ThriveWorkerUnitEventListener = (event: ThriveWorkerUnitEvent) => void
 
 export interface ThriveWorkerUnitOptions {
-  moderator?: string,
+  moderator: string,
   rewardToken?: string,
-  rewardAmount?: string,
-  maxRewards?: string,
+  tokenType: ThriveWorkerUnitTokenType,
+  rewardAmount: string,
+  maxRewards: string,
   validationRewardAmount?: string,
-  deadline: string,
+  deadline: number,
   maxCompletionsPerUser: number,
   validators: Array<string>,
   assignedContributor: string,
@@ -95,28 +97,55 @@ export class ThriveWorkerUnit {
     return this.wallet.address
   }
 
-  public async createNewWorkerUnit (...args: ThriveWorkerUnitOptions[]): Promise<string> {
+  public async createNewWorkerUnit (workerUnitOptions: ThriveWorkerUnitOptions): Promise<string> {
     if (!this.wallet) {
       throw new ThriveWalletMissingError()
     }
     if (!this.factoryContract) {
       throw new Error('Factory contract is not deployed')
     }
-
-    const tx = await this.factoryContract.createThriveWorkerUnit(...args)
+    const tx = await this.factoryContract.createThriveWorkerUnit(
+      workerUnitOptions.moderator,
+      workerUnitOptions.rewardToken ?? ethers.ZeroAddress,
+      workerUnitOptions.rewardAmount,
+      workerUnitOptions.maxRewards,
+      workerUnitOptions.validationRewardAmount,
+      workerUnitOptions.deadline,
+      workerUnitOptions.maxCompletionsPerUser,
+      workerUnitOptions.validators,
+      workerUnitOptions.assignedContributor,
+      workerUnitOptions.badgeQuery
+    )
     const receipt = await tx.wait()
+    const eventInterface = new ethers.Interface([
+      'event ThriveWorkerUnitCreated(address indexed unitAddress)'
+    ])
 
-    const event = receipt.events?.find((e: { event: string }) => e.event === 'NewWorkerUnitCreated')
-    if (event) {
-      const newContractAddress = event.args?.[0]
+    let newContractAddress: string | null = null
 
-      this.contractAddress = newContractAddress
-      this.contract = new ethers.Contract(newContractAddress, ThriveWorkerUnitABI, this.wallet ?? this.provider)
+    receipt.logs.forEach((log: { topics: ReadonlyArray<string>; data: string }) => {
+      try {
+        const parsedLog = eventInterface.parseLog(log)
+        if (parsedLog?.name === 'ThriveWorkerUnitCreated') {
+          newContractAddress = parsedLog.args.unitAddress
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    })
 
-      return newContractAddress
+    if (!newContractAddress) {
+      throw new Error('Failed to retrieve new Worker Unit address')
     }
 
-    throw new Error('Failed to retrieve new Worker Unit address')
+    this.contractAddress = newContractAddress
+    this.contract = new ethers.Contract(newContractAddress, ThriveWorkerUnitABI, this.wallet ?? this.provider)
+    const tokenContract = new ethers.Contract(workerUnitOptions.rewardToken ?? ethers.ZeroAddress, ThriveIERC20WrapperABI, this.wallet ?? this.provider)
+    if (workerUnitOptions.tokenType === ThriveWorkerUnitTokenType.IERC20) {
+      const ercTx = await tokenContract!.approve(this.contract, workerUnitOptions.maxRewards)
+      await ercTx.wait()
+    }
+    return newContractAddress
   }
 
   public async getContractEventsFromHash (hash: string): Promise<ThriveWorkerUnitEvent[]> {
@@ -210,10 +239,10 @@ export class ThriveWorkerUnit {
   ): Promise<string> {
     if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.contract) throw new ThriveContractNotInitializedError()
-
     const tx = await this.contract.initialize({
       value
     })
+
     await tx.wait()
 
     return tx.hash
