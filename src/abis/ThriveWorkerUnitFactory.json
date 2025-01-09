@@ -1,0 +1,57 @@
+[
+  {
+    "type": "function",
+    "name": "createThriveWorkerUnit",
+    "inputs": [
+      { "name": "_moderator", "type": "address", "internalType": "address" },
+      {
+        "name": "_rewardToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_rewardAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      { "name": "_maxRewards", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "_validationRewardAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      { "name": "_deadline", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "_maxCompletionsPerUser",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_validators",
+        "type": "address[]",
+        "internalType": "address[]"
+      },
+      {
+        "name": "_assignedContributor",
+        "type": "address",
+        "internalType": "address"
+      },
+      { "name": "_badgeQuery", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "ThriveWorkerUnitCreated",
+    "inputs": [
+      {
+        "name": "unitAddress",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  }
+]

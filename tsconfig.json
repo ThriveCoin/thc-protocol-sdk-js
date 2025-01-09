@@ -7,7 +7,8 @@
     "declarationDir": "./types", // Output directory for declarations
     "rootDir": "./src", // Root directory for source files
     "esModuleInterop": true, // Enable compatibility with CommonJS
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
   },
   "include": [
     "src/**/*"

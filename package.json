@@ -9,10 +9,11 @@
     "build:cjs": "tsc --project tsconfig.cjs.json",
     "build:mjs": "tsc --project tsconfig.mjs.json",
     "build:browser": "rollup -c",
-    "build": "npm run clean && npm run build:cjs && npm run build:mjs && npm run build:browser",
+    "build": "npm run clean && npm run build:cjs && npm run build:mjs && npm run build:browser && npm run format",
     "clean": "rm -rf  ./dist/cjs ./dist/mjs ./dist/browser ./types",
     "format": "npm run lint -- --fix",
     "lint": "eslint . --ext .ts,.js",
+    "prepare": "husky",
     "test": "npm run lint"
   },
   "repository": {
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@types/node": "^22.10.1",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
@@ -44,10 +46,12 @@
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.6.0",
     "eslint-plugin-standard": "^5.0.0",
+    "husky": "^9.1.7",
     "rollup": "^2.79.2",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.36.0",
     "standard": "^17.1.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   }
 }

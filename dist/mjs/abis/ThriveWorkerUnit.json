@@ -1,0 +1,367 @@
+[
+    {
+        "type": "constructor",
+        "inputs": [
+            { "name": "_moderator", "type": "address", "internalType": "address" },
+            {
+                "name": "_rewardToken",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "_rewardAmount",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            { "name": "_maxRewards", "type": "uint256", "internalType": "uint256" },
+            {
+                "name": "_validationRewardAmount",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            { "name": "_deadline", "type": "uint256", "internalType": "uint256" },
+            {
+                "name": "_maxCompletionsPerUser",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "_validators",
+                "type": "address[]",
+                "internalType": "address[]"
+            },
+            {
+                "name": "_assignedContributor",
+                "type": "address",
+                "internalType": "address"
+            },
+            { "name": "_badgeQuery", "type": "address", "internalType": "address" }
+        ],
+        "stateMutability": "nonpayable"
+    },
+    { "type": "receive", "stateMutability": "payable" },
+    {
+        "type": "function",
+        "name": "addRequiredBadge",
+        "inputs": [
+            { "name": "badge", "type": "bytes32", "internalType": "bytes32" }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "assignedContributor",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "badgeQuery",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "contract IBadgeQuery"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "completions",
+        "inputs": [{ "name": "", "type": "address", "internalType": "address" }],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "confirm",
+        "inputs": [
+            { "name": "contributor", "type": "address", "internalType": "address" },
+            {
+                "name": "inputValidationMetadata",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "deadline",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getRequiredBadges",
+        "inputs": [],
+        "outputs": [
+            { "name": "", "type": "bytes32[]", "internalType": "bytes32[]" }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getValidators",
+        "inputs": [],
+        "outputs": [
+            { "name": "", "type": "address[]", "internalType": "address[]" }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "initialize",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "payable"
+    },
+    {
+        "type": "function",
+        "name": "maxCompletionsPerUser",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "maxRewards",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "metadata",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "metadataVersion",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "moderator",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "ready",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "removeRequiredBadge",
+        "inputs": [
+            { "name": "badge", "type": "bytes32", "internalType": "bytes32" }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "rewardAmount",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "rewardToken",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "setAssignedContributor",
+        "inputs": [
+            {
+                "name": "_assignedContributor",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "setDeadline",
+        "inputs": [
+            { "name": "_deadline", "type": "uint256", "internalType": "uint256" }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "setMaxCompletionsPerUser",
+        "inputs": [
+            {
+                "name": "_maxCompletionsPerUser",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "setMetadata",
+        "inputs": [
+            { "name": "_metadata", "type": "string", "internalType": "string" }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "setMetadataVersion",
+        "inputs": [
+            {
+                "name": "_metadataVersion",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "setValidationMetadata",
+        "inputs": [
+            {
+                "name": "_validationMetadata",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "status",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "validationMetadata",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "validationRewardAmount",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "withdrawRemaining",
+        "inputs": [],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "event",
+        "name": "ConfirmationAdded",
+        "inputs": [
+            {
+                "name": "contributor",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            },
+            {
+                "name": "validationMetadata",
+                "type": "string",
+                "indexed": false,
+                "internalType": "string"
+            },
+            {
+                "name": "rewardAmount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "validator",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "Initialized",
+        "inputs": [],
+        "anonymous": false
+    },
+    {
+        "type": "event",
+        "name": "Withdrawn",
+        "inputs": [
+            {
+                "name": "token",
+                "type": "address",
+                "indexed": false,
+                "internalType": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            }
+        ],
+        "anonymous": false
+    },
+    {
+        "type": "error",
+        "name": "AddressEmptyCode",
+        "inputs": [
+            { "name": "target", "type": "address", "internalType": "address" }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "AddressInsufficientBalance",
+        "inputs": [
+            { "name": "account", "type": "address", "internalType": "address" }
+        ]
+    },
+    { "type": "error", "name": "FailedInnerCall", "inputs": [] },
+    { "type": "error", "name": "ReentrancyGuardReentrantCall", "inputs": [] },
+    {
+        "type": "error",
+        "name": "SafeERC20FailedOperation",
+        "inputs": [
+            { "name": "token", "type": "address", "internalType": "address" }
+        ]
+    }
+]
