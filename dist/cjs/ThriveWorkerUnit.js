@@ -8,6 +8,7 @@ const ethers_1 = require("ethers");
 const events_1 = require("events");
 const ThriveWorkerUnit_json_1 = __importDefault(require("./abis/ThriveWorkerUnit.json"));
 const ThriveWorkerUnitFactory_json_1 = __importDefault(require("./abis/ThriveWorkerUnitFactory.json"));
+const ThriveIERC20Wrapper_json_1 = __importDefault(require("./abis/ThriveIERC20Wrapper.json"));
 const ThriveWalletMissingError_1 = __importDefault(require("./errors/ThriveWalletMissingError"));
 const ThriveProviderMissingError_1 = __importDefault(require("./errors/ThriveProviderMissingError"));
 const ThriveProviderTxNotFoundError_1 = __importDefault(require("./errors/ThriveProviderTxNotFoundError"));
@@ -54,23 +55,41 @@ class ThriveWorkerUnit {
         }
         return this.wallet.address;
     }
-    async createNewWorkerUnit(...args) {
+    async createNewWorkerUnit(workerUnitOptions) {
         if (!this.wallet) {
             throw new ThriveWalletMissingError_1.default();
         }
         if (!this.factoryContract) {
             throw new Error('Factory contract is not deployed');
         }
-        const tx = await this.factoryContract.createThriveWorkerUnit(...args);
+        const tx = await this.factoryContract.createThriveWorkerUnit(workerUnitOptions.moderator, workerUnitOptions.rewardToken ?? ethers_1.ethers.ZeroAddress, workerUnitOptions.rewardAmount, workerUnitOptions.maxRewards, workerUnitOptions.validationRewardAmount, workerUnitOptions.deadline, workerUnitOptions.maxCompletionsPerUser, workerUnitOptions.validators, workerUnitOptions.assignedContributor, workerUnitOptions.badgeQuery);
         const receipt = await tx.wait();
-        const event = receipt.events?.find((e) => e.event === 'NewWorkerUnitCreated');
-        if (event) {
-            const newContractAddress = event.args?.[0];
-            this.contractAddress = newContractAddress;
-            this.contract = new ethers_1.ethers.Contract(newContractAddress, ThriveWorkerUnit_json_1.default, this.wallet ?? this.provider);
-            return newContractAddress;
+        const eventInterface = new ethers_1.ethers.Interface([
+            'event ThriveWorkerUnitCreated(address indexed unitAddress)'
+        ]);
+        let newContractAddress = null;
+        receipt.logs.forEach((log) => {
+            try {
+                const parsedLog = eventInterface.parseLog(log);
+                if (parsedLog?.name === 'ThriveWorkerUnitCreated') {
+                    newContractAddress = parsedLog.args.unitAddress;
+                }
+            }
+            catch (error) {
+                console.error(error);
+            }
+        });
+        if (!newContractAddress) {
+            throw new Error('Failed to retrieve new Worker Unit address');
         }
-        throw new Error('Failed to retrieve new Worker Unit address');
+        this.contractAddress = newContractAddress;
+        this.contract = new ethers_1.ethers.Contract(newContractAddress, ThriveWorkerUnit_json_1.default, this.wallet ?? this.provider);
+        const tokenContract = new ethers_1.ethers.Contract(workerUnitOptions.rewardToken ?? ethers_1.ethers.ZeroAddress, ThriveIERC20Wrapper_json_1.default, this.wallet ?? this.provider);
+        if (workerUnitOptions.tokenType === ThriveWorkerUnitTokenType.IERC20) {
+            const ercTx = await tokenContract.approve(this.contract, workerUnitOptions.maxRewards);
+            await ercTx.wait();
+        }
+        return newContractAddress;
     }
     async getContractEventsFromHash(hash) {
         if (!this.provider) {

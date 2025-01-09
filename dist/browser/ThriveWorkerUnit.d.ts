@@ -24,12 +24,13 @@ export interface ThriveWorkerUnitEvent {
 }
 export type ThriveWorkerUnitEventListener = (event: ThriveWorkerUnitEvent) => void;
 export interface ThriveWorkerUnitOptions {
-    moderator?: string;
+    moderator: string;
     rewardToken?: string;
-    rewardAmount?: string;
-    maxRewards?: string;
+    tokenType: ThriveWorkerUnitTokenType;
+    rewardAmount: string;
+    maxRewards: string;
     validationRewardAmount?: string;
-    deadline: string;
+    deadline: number;
     maxCompletionsPerUser: number;
     validators: Array<string>;
     assignedContributor: string;
@@ -48,7 +49,7 @@ export declare class ThriveWorkerUnit {
     constructor(_factoryAddress: string, _wallet: ethers.Wallet, _provider: ethers.Provider, _contractAddress?: string);
     setWallet(wallet: ethers.Wallet): void;
     getWallet(): string;
-    createNewWorkerUnit(...args: ThriveWorkerUnitOptions[]): Promise<string>;
+    createNewWorkerUnit(workerUnitOptions: ThriveWorkerUnitOptions): Promise<string>;
     getContractEventsFromHash(hash: string): Promise<ThriveWorkerUnitEvent[]>;
     protected eventListenerFunc(contributor: string, validationMetadata: string, rewardAmount: bigint, validator: string, ev: ethers.ContractEventPayload): void;
     onContractEvent(type: ThriveWorkerUnitEventKey, listener: ThriveWorkerUnitEventListener): void;
