@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/ThriveCoin/thc-protocol-sdk-js#readme",
   "dependencies": {
+    "axios": "^1.7.9",
     "ethers": "^6.13.4"
   },
   "devDependencies": {
