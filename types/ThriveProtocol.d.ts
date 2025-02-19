@@ -1,6 +1,7 @@
 import { ethers } from 'ethers'
 import { ThriveBridgeDestination, ThriveBridgeSource, ThriveBridgeSourceType } from './ThriveBridge'
 import { ThriveWorkerUnit } from './ThriveWorkerUnit'
+import { ThriveStakingType, ThriveStaking } from './ThriveStaking'
 export interface ThriveProtocolOptions {
     provider?: ethers.Provider;
     wallet?: ethers.Wallet;
@@ -21,6 +22,16 @@ export interface ThriveProtocolOptions {
         provider: ethers.Provider;
         contractAddress?: string;
     };
+    stake?: {
+        stakingType: ThriveStakingType;
+        nativeAddress: string;
+        ierc20Address: string;
+        token: string;
+        yieldRate: string;
+        minStakingAmount: string;
+        accessControlEnumerable: string;
+        role: string;
+    };
 }
 export declare class ThriveProtocol {
   protected provider?: ethers.Provider
@@ -28,8 +39,10 @@ export declare class ThriveProtocol {
   protected _thriveBridgeSource?: ThriveBridgeSource
   protected _thriveBridgeDestination?: ThriveBridgeDestination
   protected _thriveWorkerUnit?: ThriveWorkerUnit
+  protected _thriveStaking?: ThriveStaking
   constructor(params: ThriveProtocolOptions);
   get thriveBridgeSource(): ThriveBridgeSource;
   get thriveBridgeDestination(): ThriveBridgeDestination;
   get thriveWorkerUnit(): ThriveWorkerUnit;
+  get thriveStaking(): ThriveStaking;
 }

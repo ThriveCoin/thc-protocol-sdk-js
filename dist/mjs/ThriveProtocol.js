@@ -1,5 +1,6 @@
 import { ThriveBridgeDestination, ThriveBridgeSource } from './ThriveBridge';
 import { ThriveWorkerUnit } from './ThriveWorkerUnit';
+import { ThriveStaking } from './ThriveStaking';
 import ThriveFeatureNotInitializedError from './errors/ThriveFeatureNotInitializedError';
 export class ThriveProtocol {
     constructor(params) {
@@ -25,6 +26,19 @@ export class ThriveProtocol {
         if (params.workerUnit) {
             this._thriveWorkerUnit = new ThriveWorkerUnit(params.workerUnit.factoryAddress, params.workerUnit.wallet ?? params.wallet, params.workerUnit.provider ?? params.provider, params.workerUnit.contractAddress);
         }
+        if (params.stake) {
+            this._thriveStaking = new ThriveStaking({
+                wallet: this.wallet,
+                provider: this.provider,
+                nativeAddress: params.stake.nativeAddress,
+                ierc20Address: params.stake.ierc20Address,
+                token: params.stake.token,
+                yieldRate: params.stake.yieldRate,
+                minStakingAmount: params.stake.minStakingAmount,
+                accessControlEnumerable: params.stake.accessControlEnumerable,
+                role: params.stake.role
+            }, params.stake.stakingType);
+        }
     }
     get thriveBridgeSource() {
         if (!this._thriveBridgeSource) {
@@ -43,5 +57,11 @@ export class ThriveProtocol {
             throw new ThriveFeatureNotInitializedError();
         }
         return this._thriveWorkerUnit;
+    }
+    get thriveStaking() {
+        if (!this._thriveStaking) {
+            throw new ThriveFeatureNotInitializedError();
+        }
+        return this._thriveStaking;
     }
 }
