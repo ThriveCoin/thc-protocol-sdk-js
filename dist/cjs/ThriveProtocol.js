@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ThriveProtocol = void 0;
 const ThriveBridge_1 = require("./ThriveBridge");
 const ThriveWorkerUnit_1 = require("./ThriveWorkerUnit");
+const ThriveStaking_1 = require("./ThriveStaking");
 const ThriveFeatureNotInitializedError_1 = __importDefault(require("./errors/ThriveFeatureNotInitializedError"));
 class ThriveProtocol {
     constructor(params) {
@@ -31,6 +32,19 @@ class ThriveProtocol {
         if (params.workerUnit) {
             this._thriveWorkerUnit = new ThriveWorkerUnit_1.ThriveWorkerUnit(params.workerUnit.factoryAddress, params.workerUnit.wallet ?? params.wallet, params.workerUnit.provider ?? params.provider, params.workerUnit.contractAddress);
         }
+        if (params.stake) {
+            this._thriveStaking = new ThriveStaking_1.ThriveStaking({
+                wallet: this.wallet,
+                provider: this.provider,
+                nativeAddress: params.stake.nativeAddress,
+                ierc20Address: params.stake.ierc20Address,
+                token: params.stake.token,
+                yieldRate: params.stake.yieldRate,
+                minStakingAmount: params.stake.minStakingAmount,
+                accessControlEnumerable: params.stake.accessControlEnumerable,
+                role: params.stake.role
+            }, params.stake.stakingType);
+        }
     }
     get thriveBridgeSource() {
         if (!this._thriveBridgeSource) {
@@ -49,6 +63,12 @@ class ThriveProtocol {
             throw new ThriveFeatureNotInitializedError_1.default();
         }
         return this._thriveWorkerUnit;
+    }
+    get thriveStaking() {
+        if (!this._thriveStaking) {
+            throw new ThriveFeatureNotInitializedError_1.default();
+        }
+        return this._thriveStaking;
     }
 }
 exports.ThriveProtocol = ThriveProtocol;

@@ -22,13 +22,10 @@ const main = async () => {
     validationRewardAmount: ethers.parseEther('0.01').toString(),
     deadline: (Date.now() + 7 * 24 * 60 * 60 * 1000),
     maxCompletionsPerUser: 2,
-    validators: [wallet.address],
-    assignedContributor: wallet.address,
+    validators: [wallet.address, '0xCcb975a08d189bF86f0B1A0B2CB9ba49b9255D7a'],
+    assignedContributor: '0x0000000000000000000000000000000000000000',
     badgeQuery: wallet.address
   }
-
-  const newWorkerUnitAddress = await sdk.thriveWorkerUnit.createNewWorkerUnit(workerUnitOptions)
-  console.log('New Worker Unit Address:', newWorkerUnitAddress)
 
   // Listen for events
   sdk.thriveWorkerUnit.onContractEvent('Initialized', (event) => {
@@ -43,25 +40,25 @@ const main = async () => {
     console.log('Withdrawn Event:', event)
   })
 
-  // Start calling the functions
-  const initializeTxHash = await sdk.thriveWorkerUnit.initialize(ethers.parseEther('2').toString())
-  console.log('Initialize Transaction Hash:', initializeTxHash)
+  const newWorkerUnitAddress = await sdk.thriveWorkerUnit.createNewWorkerUnit(workerUnitOptions, ethers.parseEther('2').toString())
+  console.log('New Worker Unit Address:', newWorkerUnitAddress)
 
   const confirmTxHash = await sdk.thriveWorkerUnit.confirm(wallet.address, 'exampleValidationMetadata')
   console.log('Confirm Transaction Hash:', confirmTxHash)
 
-  const currentTimeInSeconds = Math.floor(Date.now() / 1000)
+  const latestBlock = await provider.getBlock('latest')
+  const currentBlockTime = latestBlock?.timestamp || Math.floor(Date.now() / 1000)
 
-  const deadline = currentTimeInSeconds + 60 // deadline current + 1 minute
+  const deadline = currentBlockTime + 35
   const setDeadlineTxHash = await sdk.thriveWorkerUnit.setDeadline(deadline)
   console.log('Set Deadline Hash:', setDeadlineTxHash)
 
-  const waitTimeInMilliseconds = (deadline + 70 - Math.floor(Date.now() / 1000)) * 1000 // wait 1 minute and 10 seconds
+  const waitTimeInMilliseconds = (deadline - Math.floor(Date.now() / 1000)) * 1000
 
   console.log(`Waiting ${waitTimeInMilliseconds / 1000} seconds until calling withdrawRemaining...`)
   setTimeout(async () => {
     try {
-      console.log('1 minute and 10 seconds after deadline has passed. Proceeding to withdraw remaining funds...')
+      console.log(`${waitTimeInMilliseconds / 1000} seconds after deadline has passed. Proceeding to withdraw remaining funds...'`)
       const withdrawTxHash = await sdk.thriveWorkerUnit.withdrawRemaining()
       console.log('Withdraw Transaction Hash:', withdrawTxHash)
     } catch (error) {

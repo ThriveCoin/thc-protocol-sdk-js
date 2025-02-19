@@ -14,3 +14,11 @@ export {
   ThriveWorkerUnitEventListener,
   ThriveWorkerUnit
 } from './ThriveWorkerUnit'
+export {
+  ThriveStakingType,
+  ThriveStakingEventEnum,
+  ThriveStakingEventKey,
+  ThriveStakingEvent,
+  ThriveStakingEventListener,
+  ThriveStaking
+} from './ThriveStaking'

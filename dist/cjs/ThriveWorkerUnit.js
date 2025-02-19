@@ -55,14 +55,27 @@ class ThriveWorkerUnit {
         }
         return this.wallet.address;
     }
-    async createNewWorkerUnit(workerUnitOptions) {
+    async createNewWorkerUnit(workerUnitOptions, value) {
         if (!this.wallet) {
             throw new ThriveWalletMissingError_1.default();
         }
         if (!this.factoryContract) {
             throw new Error('Factory contract is not deployed');
         }
-        const tx = await this.factoryContract.createThriveWorkerUnit(workerUnitOptions.moderator, workerUnitOptions.rewardToken ?? ethers_1.ethers.ZeroAddress, workerUnitOptions.rewardAmount, workerUnitOptions.maxRewards, workerUnitOptions.validationRewardAmount, workerUnitOptions.deadline, workerUnitOptions.maxCompletionsPerUser, workerUnitOptions.validators, workerUnitOptions.assignedContributor, workerUnitOptions.badgeQuery);
+        const tx = await this.factoryContract.createThriveWorkUnit({
+            moderator: workerUnitOptions.moderator,
+            rewardToken: workerUnitOptions.rewardToken ?? ethers_1.ethers.ZeroAddress,
+            rewardAmount: workerUnitOptions.rewardAmount,
+            maxRewards: workerUnitOptions.maxRewards,
+            validationRewardAmount: workerUnitOptions.validationRewardAmount,
+            deadline: workerUnitOptions.deadline,
+            maxCompletionsPerUser: workerUnitOptions.maxCompletionsPerUser,
+            validators: workerUnitOptions.validators,
+            assignedContributor: workerUnitOptions.assignedContributor,
+            badgeQuery: workerUnitOptions.badgeQuery
+        }, {
+            value
+        });
         const receipt = await tx.wait();
         const eventInterface = new ethers_1.ethers.Interface([
             'event ThriveWorkerUnitCreated(address indexed unitAddress)'
