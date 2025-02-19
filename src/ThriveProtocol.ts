@@ -1,6 +1,7 @@
 import { ethers } from 'ethers'
 import { ThriveBridgeDestination, ThriveBridgeSource, ThriveBridgeSourceType } from './ThriveBridge'
 import { ThriveWorkerUnit } from './ThriveWorkerUnit'
+import { ThriveStakingType, ThriveStaking } from './ThriveStaking'
 import ThriveFeatureNotInitializedError from './errors/ThriveFeatureNotInitializedError'
 
 export interface ThriveProtocolOptions {
@@ -22,6 +23,16 @@ export interface ThriveProtocolOptions {
     wallet: ethers.Wallet,
     provider: ethers.Provider,
     contractAddress?: string
+  },
+  stake?: {
+    stakingType: ThriveStakingType,
+    nativeAddress: string
+    ierc20Address: string
+    token: string
+    yieldRate: string
+    minStakingAmount: string
+    accessControlEnumerable: string
+    role: string
   }
 }
 
@@ -31,6 +42,7 @@ export class ThriveProtocol {
   protected _thriveBridgeSource?: ThriveBridgeSource
   protected _thriveBridgeDestination?: ThriveBridgeDestination
   protected _thriveWorkerUnit?: ThriveWorkerUnit
+  protected _thriveStaking?: ThriveStaking
 
   constructor (params: ThriveProtocolOptions) {
     this.provider = params.provider
@@ -62,6 +74,23 @@ export class ThriveProtocol {
         params.workerUnit.contractAddress
       )
     }
+
+    if (params.stake) {
+      this._thriveStaking = new ThriveStaking(
+        {
+          wallet: this.wallet,
+          provider: this.provider,
+          nativeAddress: params.stake.nativeAddress,
+          ierc20Address: params.stake.ierc20Address,
+          token: params.stake.token,
+          yieldRate: params.stake.yieldRate,
+          minStakingAmount: params.stake.minStakingAmount,
+          accessControlEnumerable: params.stake.accessControlEnumerable,
+          role: params.stake.role
+        },
+        params.stake.stakingType
+      )
+    }
   }
 
   get thriveBridgeSource (): ThriveBridgeSource {
@@ -83,5 +112,12 @@ export class ThriveProtocol {
       throw new ThriveFeatureNotInitializedError()
     }
     return this._thriveWorkerUnit
+  }
+
+  get thriveStaking (): ThriveStaking {
+    if (!this._thriveStaking) {
+      throw new ThriveFeatureNotInitializedError()
+    }
+    return this._thriveStaking
   }
 }
