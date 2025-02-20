@@ -2,6 +2,7 @@ import { ethers } from 'ethers'
 import { ThriveBridgeDestination, ThriveBridgeSource, ThriveBridgeSourceType } from './ThriveBridge'
 import { ThriveWorkerUnit } from './ThriveWorkerUnit'
 import { ThriveStakingType, ThriveStaking } from './ThriveStaking'
+import { ThriveOraclePriceStore } from './ThriveOraclePriceStore'
 import ThriveFeatureNotInitializedError from './errors/ThriveFeatureNotInitializedError'
 
 export interface ThriveProtocolOptions {
@@ -33,6 +34,11 @@ export interface ThriveProtocolOptions {
     minStakingAmount: string
     accessControlEnumerable: string
     role: string
+  },
+  oraclePrice?: {
+    wallet?: ethers.Wallet,
+    provider?: ethers.Provider,
+    address: string
   }
 }
 
@@ -43,6 +49,7 @@ export class ThriveProtocol {
   protected _thriveBridgeDestination?: ThriveBridgeDestination
   protected _thriveWorkerUnit?: ThriveWorkerUnit
   protected _thriveStaking?: ThriveStaking
+  protected _thriveOraclePrice?: ThriveOraclePriceStore
 
   constructor (params: ThriveProtocolOptions) {
     this.provider = params.provider
@@ -91,6 +98,14 @@ export class ThriveProtocol {
         params.stake.stakingType
       )
     }
+
+    if (params.oraclePrice) {
+      this._thriveOraclePrice = new ThriveOraclePriceStore({
+        wallet: params.oraclePrice.wallet ?? this.wallet,
+        provider: params.oraclePrice.provider ?? this.provider,
+        address: params.oraclePrice.address
+      })
+    }
   }
 
   get thriveBridgeSource (): ThriveBridgeSource {
@@ -119,5 +134,12 @@ export class ThriveProtocol {
       throw new ThriveFeatureNotInitializedError()
     }
     return this._thriveStaking
+  }
+
+  get thriveOraclePrice (): ThriveOraclePriceStore {
+    if (!this._thriveOraclePrice) {
+      throw new ThriveFeatureNotInitializedError()
+    }
+    return this._thriveOraclePrice
   }
 }

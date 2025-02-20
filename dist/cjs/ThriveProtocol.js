@@ -7,6 +7,7 @@ exports.ThriveProtocol = void 0;
 const ThriveBridge_1 = require("./ThriveBridge");
 const ThriveWorkerUnit_1 = require("./ThriveWorkerUnit");
 const ThriveStaking_1 = require("./ThriveStaking");
+const ThriveOraclePriceStore_1 = require("./ThriveOraclePriceStore");
 const ThriveFeatureNotInitializedError_1 = __importDefault(require("./errors/ThriveFeatureNotInitializedError"));
 class ThriveProtocol {
     constructor(params) {
@@ -45,6 +46,13 @@ class ThriveProtocol {
                 role: params.stake.role
             }, params.stake.stakingType);
         }
+        if (params.oraclePrice) {
+            this._thriveOraclePrice = new ThriveOraclePriceStore_1.ThriveOraclePriceStore({
+                wallet: params.oraclePrice.wallet ?? this.wallet,
+                provider: params.oraclePrice.provider ?? this.provider,
+                address: params.oraclePrice.address
+            });
+        }
     }
     get thriveBridgeSource() {
         if (!this._thriveBridgeSource) {
@@ -69,6 +77,12 @@ class ThriveProtocol {
             throw new ThriveFeatureNotInitializedError_1.default();
         }
         return this._thriveStaking;
+    }
+    get thriveOraclePrice() {
+        if (!this._thriveOraclePrice) {
+            throw new ThriveFeatureNotInitializedError_1.default();
+        }
+        return this._thriveOraclePrice;
     }
 }
 exports.ThriveProtocol = ThriveProtocol;

@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { ThriveBridgeDestination, ThriveBridgeSource, ThriveBridgeSourceType } from './ThriveBridge';
 import { ThriveWorkerUnit } from './ThriveWorkerUnit';
 import { ThriveStakingType, ThriveStaking } from './ThriveStaking';
+import { ThriveOraclePriceStore } from './ThriveOraclePriceStore';
 export interface ThriveProtocolOptions {
     provider?: ethers.Provider;
     wallet?: ethers.Wallet;
@@ -32,6 +33,11 @@ export interface ThriveProtocolOptions {
         accessControlEnumerable: string;
         role: string;
     };
+    oraclePrice?: {
+        wallet?: ethers.Wallet;
+        provider?: ethers.Provider;
+        address: string;
+    };
 }
 export declare class ThriveProtocol {
     protected provider?: ethers.Provider;
@@ -40,9 +46,11 @@ export declare class ThriveProtocol {
     protected _thriveBridgeDestination?: ThriveBridgeDestination;
     protected _thriveWorkerUnit?: ThriveWorkerUnit;
     protected _thriveStaking?: ThriveStaking;
+    protected _thriveOraclePrice?: ThriveOraclePriceStore;
     constructor(params: ThriveProtocolOptions);
     get thriveBridgeSource(): ThriveBridgeSource;
     get thriveBridgeDestination(): ThriveBridgeDestination;
     get thriveWorkerUnit(): ThriveWorkerUnit;
     get thriveStaking(): ThriveStaking;
+    get thriveOraclePrice(): ThriveOraclePriceStore;
 }

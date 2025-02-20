@@ -22,3 +22,6 @@ export {
   ThriveStakingEventListener,
   ThriveStaking
 } from './ThriveStaking'
+export {
+  ThriveOraclePriceStore
+} from './ThriveOraclePriceStore'
