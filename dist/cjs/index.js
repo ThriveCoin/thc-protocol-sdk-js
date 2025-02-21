@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ThriveStaking = exports.ThriveStakingEventEnum = exports.ThriveStakingType = exports.ThriveWorkerUnit = exports.ThriveWorkerUnitEventEnum = exports.ThriveWorkerUnitTokenType = exports.ThriveBridgeSourceType = exports.ThriveBridgeEventEnum = exports.ThriveBridgeDestination = exports.ThriveBridgeSource = exports.ThriveProtocol = void 0;
+exports.ThriveOraclePriceStore = exports.ThriveStaking = exports.ThriveStakingEventEnum = exports.ThriveStakingType = exports.ThriveWorkerUnit = exports.ThriveWorkerUnitEventEnum = exports.ThriveWorkerUnitTokenType = exports.ThriveBridgeSourceType = exports.ThriveBridgeEventEnum = exports.ThriveBridgeDestination = exports.ThriveBridgeSource = exports.ThriveProtocol = void 0;
 var ThriveProtocol_1 = require("./ThriveProtocol");
 Object.defineProperty(exports, "ThriveProtocol", { enumerable: true, get: function () { return ThriveProtocol_1.ThriveProtocol; } });
 var ThriveBridge_1 = require("./ThriveBridge");
@@ -16,3 +16,5 @@ var ThriveStaking_1 = require("./ThriveStaking");
 Object.defineProperty(exports, "ThriveStakingType", { enumerable: true, get: function () { return ThriveStaking_1.ThriveStakingType; } });
 Object.defineProperty(exports, "ThriveStakingEventEnum", { enumerable: true, get: function () { return ThriveStaking_1.ThriveStakingEventEnum; } });
 Object.defineProperty(exports, "ThriveStaking", { enumerable: true, get: function () { return ThriveStaking_1.ThriveStaking; } });
+var ThriveOraclePriceStore_1 = require("./ThriveOraclePriceStore");
+Object.defineProperty(exports, "ThriveOraclePriceStore", { enumerable: true, get: function () { return ThriveOraclePriceStore_1.ThriveOraclePriceStore; } });
