@@ -68,8 +68,8 @@ export class ThriveOraclePriceStore {
     }
   }
 
-  public async decimals (): Promise<string> {
+  public async decimals (): Promise<number> {
     const res = await this.contract.decimals()
-    return res.toString()
+    return +(res.toString())
   }
 }

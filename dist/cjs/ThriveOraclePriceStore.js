@@ -48,7 +48,7 @@ class ThriveOraclePriceStore {
     }
     async decimals() {
         const res = await this.contract.decimals();
-        return res.toString();
+        return +(res.toString());
     }
 }
 exports.ThriveOraclePriceStore = ThriveOraclePriceStore;
