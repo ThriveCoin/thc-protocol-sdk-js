@@ -19,4 +19,5 @@ export declare class ThriveOraclePriceStore {
     getWalletAddress(): string;
     setPrice(pair: string, price: string): Promise<string>;
     getPrice(pair: string): Promise<ThriveOraclePrice>;
+    decimals(): Promise<string>;
 }

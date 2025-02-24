@@ -3,21 +3,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ThriveBridgeDestination = exports.ThriveBridgeSource = exports.ThriveBridge = exports.ThriveBridgeEventEnum = exports.ThriveBridgeSourceType = void 0;
+exports.ThriveBridgeDestination = exports.ThriveBridgeSource = exports.ThriveBridge = exports.ThriveBridgeEventEnum = exports.ThriveBridgeDestinationType = exports.ThriveBridgeSourceType = void 0;
 const ethers_1 = require("ethers");
 const events_1 = require("events");
 const ThriveIERC20Wrapper_json_1 = __importDefault(require("./abis/ThriveIERC20Wrapper.json"));
 const ThriveBridgeSourceIERC20_json_1 = __importDefault(require("./abis/ThriveBridgeSourceIERC20.json"));
 const ThriveBridgeSourceNative_json_1 = __importDefault(require("./abis/ThriveBridgeSourceNative.json"));
 const ThriveBridgeDestination_json_1 = __importDefault(require("./abis/ThriveBridgeDestination.json"));
+const ThriveBridgeDestinationWithCompliance_json_1 = __importDefault(require("./abis/ThriveBridgeDestinationWithCompliance.json"));
 const ThriveWalletMissingError_1 = __importDefault(require("./errors/ThriveWalletMissingError"));
 const ThriveProviderMissingError_1 = __importDefault(require("./errors/ThriveProviderMissingError"));
 const ThriveProviderTxNotFoundError_1 = __importDefault(require("./errors/ThriveProviderTxNotFoundError"));
+const ThriveFeatureNotSupportedError_1 = __importDefault(require("./errors/ThriveFeatureNotSupportedError"));
 var ThriveBridgeSourceType;
 (function (ThriveBridgeSourceType) {
     ThriveBridgeSourceType["IERC20"] = "IERC20";
     ThriveBridgeSourceType["NATIVE"] = "NATIVE";
 })(ThriveBridgeSourceType || (exports.ThriveBridgeSourceType = ThriveBridgeSourceType = {}));
+var ThriveBridgeDestinationType;
+(function (ThriveBridgeDestinationType) {
+    ThriveBridgeDestinationType["BASE"] = "BASE";
+    ThriveBridgeDestinationType["COMPLIANCE"] = "COMPLIANCE";
+})(ThriveBridgeDestinationType || (exports.ThriveBridgeDestinationType = ThriveBridgeDestinationType = {}));
 var ThriveBridgeEventEnum;
 (function (ThriveBridgeEventEnum) {
     ThriveBridgeEventEnum["TokenLocked"] = "TokenLocked";
@@ -236,10 +243,13 @@ exports.ThriveBridgeSource = ThriveBridgeSource;
 class ThriveBridgeDestination extends ThriveBridge {
     constructor(params) {
         super(params);
+        this.contractType = params.destinationContractType;
         if (!this.tokenAddress) {
             throw new Error('ThriveProtocol: token address required');
         }
-        this.bridgeContract = new ethers_1.ethers.Contract(this.destinationAddress, ThriveBridgeDestination_json_1.default, this.wallet ?? this.provider);
+        this.bridgeContract = new ethers_1.ethers.Contract(this.destinationAddress, this.contractType === ThriveBridgeDestinationType.COMPLIANCE
+            ? ThriveBridgeDestinationWithCompliance_json_1.default
+            : ThriveBridgeDestination_json_1.default, this.wallet ?? this.provider);
     }
     async mintTokens(params) {
         if (!this.wallet) {
@@ -277,6 +287,28 @@ class ThriveBridgeDestination extends ThriveBridge {
     }
     async isNonceProcessed(sender, nonce) {
         return await this.bridgeContract.mintNonces(sender, nonce);
+    }
+    async setComplianceRule(checkType, limit) {
+        if (!this.wallet) {
+            throw new ThriveWalletMissingError_1.default();
+        }
+        if (this.contractType !== ThriveBridgeDestinationType.COMPLIANCE) {
+            throw new ThriveFeatureNotSupportedError_1.default();
+        }
+        const tx = await this.bridgeContract.setComplianceRule((0, ethers_1.keccak256)(checkType), limit);
+        await tx.wait();
+        return tx.hash;
+    }
+    async removeComplianceRule(checkType) {
+        if (!this.wallet) {
+            throw new ThriveWalletMissingError_1.default();
+        }
+        if (this.contractType !== ThriveBridgeDestinationType.COMPLIANCE) {
+            throw new ThriveFeatureNotSupportedError_1.default();
+        }
+        const tx = await this.bridgeContract.removeComplianceRule((0, ethers_1.keccak256)(checkType));
+        await tx.wait();
+        return tx.hash;
     }
 }
 exports.ThriveBridgeDestination = ThriveBridgeDestination;

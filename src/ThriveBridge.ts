@@ -1,19 +1,25 @@
-import { BigNumberish, ethers } from 'ethers'
+import { BigNumberish, ethers, keccak256 } from 'ethers'
 import { EventEmitter } from 'events'
 
 import ThriveIERC20WrapperABI from './abis/ThriveIERC20Wrapper.json'
 import ThriveBridgeSourceIERC20ABI from './abis/ThriveBridgeSourceIERC20.json'
 import ThriveBridgeSourceNativeABI from './abis/ThriveBridgeSourceNative.json'
 import ThriveBridgeDestinationABI from './abis/ThriveBridgeDestination.json'
+import ThriveBridgeDestinationWithComplianceABI from './abis/ThriveBridgeDestinationWithCompliance.json'
 import ThriveWalletMissingError from './errors/ThriveWalletMissingError'
 import ThriveProviderMissingError from './errors/ThriveProviderMissingError'
 import ThriveProviderTxNotFoundError from './errors/ThriveProviderTxNotFoundError'
+import ThriveFeatureNotSupportedError from './errors/ThriveFeatureNotSupportedError'
 
 type BlockRange = string | number | bigint
 
 export enum ThriveBridgeSourceType {
   IERC20 = 'IERC20',
   NATIVE = 'NATIVE'
+}
+export enum ThriveBridgeDestinationType {
+  BASE = 'BASE',
+  COMPLIANCE = 'COMPLIANCE'
 }
 
 export enum ThriveBridgeEventEnum {
@@ -324,8 +330,11 @@ export class ThriveBridgeSource extends ThriveBridge {
 }
 
 export class ThriveBridgeDestination extends ThriveBridge {
-  constructor (params: ThriveBridgeOptions & { tokenAddress: string }) {
+  protected contractType: ThriveBridgeDestinationType
+
+  constructor (params: ThriveBridgeOptions & { tokenAddress: string, destinationContractType: ThriveBridgeDestinationType }) {
     super(params)
+    this.contractType = params.destinationContractType
 
     if (!this.tokenAddress) {
       throw new Error('ThriveProtocol: token address required')
@@ -333,7 +342,9 @@ export class ThriveBridgeDestination extends ThriveBridge {
 
     this.bridgeContract = new ethers.Contract(
       this.destinationAddress,
-      ThriveBridgeDestinationABI,
+      this.contractType === ThriveBridgeDestinationType.COMPLIANCE
+        ? ThriveBridgeDestinationWithComplianceABI
+        : ThriveBridgeDestinationABI,
       this.wallet ?? this.provider
     )
   }
@@ -388,5 +399,31 @@ export class ThriveBridgeDestination extends ThriveBridge {
 
   public async isNonceProcessed (sender: string, nonce: BigNumberish): Promise<boolean> {
     return await this.bridgeContract.mintNonces(sender, nonce)
+  }
+
+  async setComplianceRule (checkType: string, limit: string): Promise<string> {
+    if (!this.wallet) {
+      throw new ThriveWalletMissingError()
+    }
+    if (this.contractType !== ThriveBridgeDestinationType.COMPLIANCE) {
+      throw new ThriveFeatureNotSupportedError()
+    }
+
+    const tx = await this.bridgeContract.setComplianceRule(keccak256(checkType), limit)
+    await tx.wait()
+    return tx.hash
+  }
+
+  async removeComplianceRule (checkType: string): Promise<string> {
+    if (!this.wallet) {
+      throw new ThriveWalletMissingError()
+    }
+    if (this.contractType !== ThriveBridgeDestinationType.COMPLIANCE) {
+      throw new ThriveFeatureNotSupportedError()
+    }
+
+    const tx = await this.bridgeContract.removeComplianceRule(keccak256(checkType))
+    await tx.wait()
+    return tx.hash
   }
 }

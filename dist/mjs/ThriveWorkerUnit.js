@@ -6,7 +6,7 @@ import ThriveIERC20WrapperABI from './abis/ThriveIERC20Wrapper.json';
 import ThriveWalletMissingError from './errors/ThriveWalletMissingError';
 import ThriveProviderMissingError from './errors/ThriveProviderMissingError';
 import ThriveProviderTxNotFoundError from './errors/ThriveProviderTxNotFoundError';
-import ThriveContractNotInitializedError from './errors/ThriveContractNotInitialized';
+import ThriveContractNotInitializedError from './errors/ThriveContractNotInitializedError';
 export var ThriveWorkerUnitTokenType;
 (function (ThriveWorkerUnitTokenType) {
     ThriveWorkerUnitTokenType["IERC20"] = "IERC20";

@@ -12,7 +12,7 @@ const ThriveIERC20Wrapper_json_1 = __importDefault(require("./abis/ThriveIERC20W
 const ThriveWalletMissingError_1 = __importDefault(require("./errors/ThriveWalletMissingError"));
 const ThriveProviderMissingError_1 = __importDefault(require("./errors/ThriveProviderMissingError"));
 const ThriveProviderTxNotFoundError_1 = __importDefault(require("./errors/ThriveProviderTxNotFoundError"));
-const ThriveContractNotInitialized_1 = __importDefault(require("./errors/ThriveContractNotInitialized"));
+const ThriveContractNotInitializedError_1 = __importDefault(require("./errors/ThriveContractNotInitializedError"));
 var ThriveWorkerUnitTokenType;
 (function (ThriveWorkerUnitTokenType) {
     ThriveWorkerUnitTokenType["IERC20"] = "IERC20";
@@ -188,7 +188,7 @@ class ThriveWorkerUnit {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.initialize({
             value
         });
@@ -199,7 +199,7 @@ class ThriveWorkerUnit {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.confirm(contributor, inputValidationMetadata);
         await tx.wait();
         return tx.hash;
@@ -208,7 +208,7 @@ class ThriveWorkerUnit {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.setAssignedContributor(contributor);
         await tx.wait();
         return tx.hash;
@@ -217,7 +217,7 @@ class ThriveWorkerUnit {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.addRequiredBadge(badge);
         await tx.wait();
         return tx.hash;
@@ -226,7 +226,7 @@ class ThriveWorkerUnit {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.removeRequiredBadge(badge);
         await tx.wait();
         return tx.hash;
@@ -235,7 +235,7 @@ class ThriveWorkerUnit {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const metadataTx = await this.contract.setMetadata(metadata);
         const versionTx = await this.contract.setMetadataVersion(metadataVersion);
         await metadataTx.wait();
@@ -249,7 +249,7 @@ class ThriveWorkerUnit {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.setDeadline(deadline);
         await tx.wait();
         return tx.hash;
@@ -258,24 +258,24 @@ class ThriveWorkerUnit {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.withdrawRemaining();
         await tx.wait();
         return tx.hash;
     }
     async getValidators() {
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         return await this.contract.getValidators();
     }
     async getRequiredBadges() {
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         return await this.contract.getRequiredBadges();
     }
     async status() {
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         return await this.contract.status();
     }
 }

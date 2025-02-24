@@ -1,8 +1,9 @@
 import { ethers } from 'ethers'
-import { ThriveBridgeDestination, ThriveBridgeSource, ThriveBridgeSourceType } from './ThriveBridge'
+import { ThriveBridgeDestination, ThriveBridgeSource, ThriveBridgeSourceType, ThriveBridgeDestinationType } from './ThriveBridge'
 import { ThriveWorkerUnit } from './ThriveWorkerUnit'
 import { ThriveStakingType, ThriveStaking } from './ThriveStaking'
 import { ThriveOraclePriceStore } from './ThriveOraclePriceStore'
+import { ThriveComplianceStore } from './ThriveComplianceStore'
 import ThriveFeatureNotInitializedError from './errors/ThriveFeatureNotInitializedError'
 
 export interface ThriveProtocolOptions {
@@ -11,13 +12,14 @@ export interface ThriveProtocolOptions {
   bridge?: {
     sourceWallet?: ethers.Wallet,
     sourceProvider?: ethers.Provider,
-    sourceAddress: string;
-    sourceTokenAddress?: string;
+    sourceAddress: string
+    sourceTokenAddress?: string
     sourceContractType: ThriveBridgeSourceType,
+    destinationContractType: ThriveBridgeDestinationType,
     destinationWallet?: ethers.Wallet,
     destinationProvider?: ethers.Provider,
-    destinationAddress: string;
-    destinationTokenAddress: string;
+    destinationAddress: string
+    destinationTokenAddress: string
   },
   workerUnit?: {
     factoryAddress: string,
@@ -39,6 +41,11 @@ export interface ThriveProtocolOptions {
     wallet?: ethers.Wallet,
     provider?: ethers.Provider,
     address: string
+  },
+  compliance?: {
+    wallet?: ethers.Wallet,
+    provider?: ethers.Provider,
+    address: string
   }
 }
 
@@ -50,6 +57,7 @@ export class ThriveProtocol {
   protected _thriveWorkerUnit?: ThriveWorkerUnit
   protected _thriveStaking?: ThriveStaking
   protected _thriveOraclePrice?: ThriveOraclePriceStore
+  protected _compliance?: ThriveComplianceStore
 
   constructor (params: ThriveProtocolOptions) {
     this.provider = params.provider
@@ -69,7 +77,8 @@ export class ThriveProtocol {
         wallet: params.bridge.destinationWallet ?? params.wallet,
         sourceAddress: params.bridge.sourceAddress,
         destinationAddress: params.bridge.destinationAddress,
-        tokenAddress: params.bridge.destinationTokenAddress
+        tokenAddress: params.bridge.destinationTokenAddress,
+        destinationContractType: params.bridge.destinationContractType
       })
     }
 
@@ -104,6 +113,14 @@ export class ThriveProtocol {
         wallet: params.oraclePrice.wallet ?? this.wallet,
         provider: params.oraclePrice.provider ?? this.provider,
         address: params.oraclePrice.address
+      })
+    }
+
+    if (params.compliance) {
+      this._compliance = new ThriveComplianceStore({
+        wallet: params.compliance.wallet ?? this.wallet,
+        provider: params.compliance.provider ?? this.provider,
+        address: params.compliance.address
       })
     }
   }
@@ -141,5 +158,12 @@ export class ThriveProtocol {
       throw new ThriveFeatureNotInitializedError()
     }
     return this._thriveOraclePrice
+  }
+
+  get compliance (): ThriveComplianceStore {
+    if (!this._compliance) {
+      throw new ThriveFeatureNotInitializedError()
+    }
+    return this._compliance
   }
 }

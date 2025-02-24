@@ -10,7 +10,7 @@ const ThriveStakingNative_json_1 = __importDefault(require("./abis/ThriveStaking
 const ThriveStakingIERC20_json_1 = __importDefault(require("./abis/ThriveStakingIERC20.json"));
 const ThriveWalletMissingError_1 = __importDefault(require("./errors/ThriveWalletMissingError"));
 const ThriveProviderMissingError_1 = __importDefault(require("./errors/ThriveProviderMissingError"));
-const ThriveContractNotInitialized_1 = __importDefault(require("./errors/ThriveContractNotInitialized"));
+const ThriveContractNotInitializedError_1 = __importDefault(require("./errors/ThriveContractNotInitializedError"));
 var ThriveStakingType;
 (function (ThriveStakingType) {
     ThriveStakingType["IERC20"] = "IERC20";
@@ -136,7 +136,7 @@ class ThriveStaking {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         let tx;
         if (this.stakingType === ThriveStakingType.NATIVE) {
             tx = await this.contract.stake(amount, { value: amount });
@@ -151,7 +151,7 @@ class ThriveStaking {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.withdraw();
         await tx.wait();
         return tx.hash;
@@ -160,14 +160,14 @@ class ThriveStaking {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.claimYield();
         await tx.wait();
         return tx.hash;
     }
     async calculateYield(address) {
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const userAddress = address || this.getWalletAddress();
         const yieldAmount = await this.contract.calculateYield(userAddress);
         return yieldAmount.toString();
@@ -176,7 +176,7 @@ class ThriveStaking {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.setYieldRate(newYieldRate);
         await tx.wait();
         return tx.hash;
@@ -185,7 +185,7 @@ class ThriveStaking {
         if (!this.wallet)
             throw new ThriveWalletMissingError_1.default();
         if (!this.contract)
-            throw new ThriveContractNotInitialized_1.default();
+            throw new ThriveContractNotInitializedError_1.default();
         const tx = await this.contract.setMinStakingAmount(newMin);
         await tx.wait();
         return tx.hash;

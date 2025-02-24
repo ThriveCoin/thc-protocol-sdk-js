@@ -4,7 +4,8 @@ export {
   ThriveBridgeDestination,
   ThriveBridgeEvent,
   ThriveBridgeEventEnum,
-  ThriveBridgeSourceType
+  ThriveBridgeSourceType,
+  ThriveBridgeDestinationType
 } from './ThriveBridge'
 export {
   ThriveWorkerUnitTokenType,
@@ -25,3 +26,6 @@ export {
 export {
   ThriveOraclePriceStore
 } from './ThriveOraclePriceStore'
+export {
+  ThriveComplianceStore
+} from './ThriveComplianceStore'

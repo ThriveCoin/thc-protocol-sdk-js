@@ -2,6 +2,7 @@ import { ThriveBridgeDestination, ThriveBridgeSource } from './ThriveBridge';
 import { ThriveWorkerUnit } from './ThriveWorkerUnit';
 import { ThriveStaking } from './ThriveStaking';
 import { ThriveOraclePriceStore } from './ThriveOraclePriceStore';
+import { ThriveComplianceStore } from './ThriveComplianceStore';
 import ThriveFeatureNotInitializedError from './errors/ThriveFeatureNotInitializedError';
 export class ThriveProtocol {
     constructor(params) {
@@ -21,7 +22,8 @@ export class ThriveProtocol {
                 wallet: params.bridge.destinationWallet ?? params.wallet,
                 sourceAddress: params.bridge.sourceAddress,
                 destinationAddress: params.bridge.destinationAddress,
-                tokenAddress: params.bridge.destinationTokenAddress
+                tokenAddress: params.bridge.destinationTokenAddress,
+                destinationContractType: params.bridge.destinationContractType
             });
         }
         if (params.workerUnit) {
@@ -45,6 +47,13 @@ export class ThriveProtocol {
                 wallet: params.oraclePrice.wallet ?? this.wallet,
                 provider: params.oraclePrice.provider ?? this.provider,
                 address: params.oraclePrice.address
+            });
+        }
+        if (params.compliance) {
+            this._compliance = new ThriveComplianceStore({
+                wallet: params.compliance.wallet ?? this.wallet,
+                provider: params.compliance.provider ?? this.provider,
+                address: params.compliance.address
             });
         }
     }
@@ -77,5 +86,11 @@ export class ThriveProtocol {
             throw new ThriveFeatureNotInitializedError();
         }
         return this._thriveOraclePrice;
+    }
+    get compliance() {
+        if (!this._compliance) {
+            throw new ThriveFeatureNotInitializedError();
+        }
+        return this._compliance;
     }
 }
