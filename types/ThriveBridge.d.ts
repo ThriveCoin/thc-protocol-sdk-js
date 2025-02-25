@@ -5,6 +5,10 @@ export declare enum ThriveBridgeSourceType {
     IERC20 = 'IERC20',
     NATIVE = 'NATIVE'
 }
+export declare enum ThriveBridgeDestinationType {
+    BASE = 'BASE',
+    COMPLIANCE = 'COMPLIANCE'
+}
 export declare enum ThriveBridgeEventEnum {
     'TokenLocked' = 'TokenLocked',
     'TokenUnlocked' = 'TokenUnlocked',
@@ -85,8 +89,10 @@ export declare class ThriveBridgeSource extends ThriveBridge {
   isNonceProcessed(sender: string, nonce: BigNumberish): Promise<boolean>;
 }
 export declare class ThriveBridgeDestination extends ThriveBridge {
+  protected contractType: ThriveBridgeDestinationType
   constructor(params: ThriveBridgeOptions & {
         tokenAddress: string;
+        destinationContractType: ThriveBridgeDestinationType;
     });
 
   mintTokens(params: {
@@ -108,5 +114,7 @@ export declare class ThriveBridgeDestination extends ThriveBridge {
   onBridgeEvent(type: ThriveBridgeDestinationEventKey, listener: ThriveBridgeEventListener): void;
   offBridgeEvent(type: ThriveBridgeDestinationEventKey, listener?: ThriveBridgeEventListener): void;
   isNonceProcessed(sender: string, nonce: BigNumberish): Promise<boolean>;
+  setComplianceRule(checkType: string, limit: string): Promise<string>;
+  removeComplianceRule(checkType: string): Promise<string>;
 }
 export {}

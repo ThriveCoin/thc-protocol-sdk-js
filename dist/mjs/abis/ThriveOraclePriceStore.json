@@ -27,6 +27,19 @@
     },
     {
         "type": "function",
+        "name": "decimals",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
         "name": "getPrice",
         "inputs": [
             {
@@ -67,6 +80,11 @@
                 "name": "_role",
                 "type": "bytes32",
                 "internalType": "bytes32"
+            },
+            {
+                "name": "_decimals",
+                "type": "uint256",
+                "internalType": "uint256"
             }
         ],
         "outputs": [],
@@ -79,6 +97,35 @@
         "outputs": [
             {
                 "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "prices",
+        "inputs": [
+            {
+                "name": "",
+                "type": "string",
+                "internalType": "string"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "price",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "updatedAt",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "updatedBy",
                 "type": "address",
                 "internalType": "address"
             }
@@ -224,7 +271,7 @@
             {
                 "name": "pair",
                 "type": "string",
-                "indexed": true,
+                "indexed": false,
                 "internalType": "string"
             },
             {

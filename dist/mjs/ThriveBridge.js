@@ -1,17 +1,24 @@
-import { ethers } from 'ethers';
+import { ethers, keccak256 } from 'ethers';
 import { EventEmitter } from 'events';
 import ThriveIERC20WrapperABI from './abis/ThriveIERC20Wrapper.json';
 import ThriveBridgeSourceIERC20ABI from './abis/ThriveBridgeSourceIERC20.json';
 import ThriveBridgeSourceNativeABI from './abis/ThriveBridgeSourceNative.json';
 import ThriveBridgeDestinationABI from './abis/ThriveBridgeDestination.json';
+import ThriveBridgeDestinationWithComplianceABI from './abis/ThriveBridgeDestinationWithCompliance.json';
 import ThriveWalletMissingError from './errors/ThriveWalletMissingError';
 import ThriveProviderMissingError from './errors/ThriveProviderMissingError';
 import ThriveProviderTxNotFoundError from './errors/ThriveProviderTxNotFoundError';
+import ThriveFeatureNotSupportedError from './errors/ThriveFeatureNotSupportedError';
 export var ThriveBridgeSourceType;
 (function (ThriveBridgeSourceType) {
     ThriveBridgeSourceType["IERC20"] = "IERC20";
     ThriveBridgeSourceType["NATIVE"] = "NATIVE";
 })(ThriveBridgeSourceType || (ThriveBridgeSourceType = {}));
+export var ThriveBridgeDestinationType;
+(function (ThriveBridgeDestinationType) {
+    ThriveBridgeDestinationType["BASE"] = "BASE";
+    ThriveBridgeDestinationType["COMPLIANCE"] = "COMPLIANCE";
+})(ThriveBridgeDestinationType || (ThriveBridgeDestinationType = {}));
 export var ThriveBridgeEventEnum;
 (function (ThriveBridgeEventEnum) {
     ThriveBridgeEventEnum["TokenLocked"] = "TokenLocked";
@@ -228,10 +235,13 @@ export class ThriveBridgeSource extends ThriveBridge {
 export class ThriveBridgeDestination extends ThriveBridge {
     constructor(params) {
         super(params);
+        this.contractType = params.destinationContractType;
         if (!this.tokenAddress) {
             throw new Error('ThriveProtocol: token address required');
         }
-        this.bridgeContract = new ethers.Contract(this.destinationAddress, ThriveBridgeDestinationABI, this.wallet ?? this.provider);
+        this.bridgeContract = new ethers.Contract(this.destinationAddress, this.contractType === ThriveBridgeDestinationType.COMPLIANCE
+            ? ThriveBridgeDestinationWithComplianceABI
+            : ThriveBridgeDestinationABI, this.wallet ?? this.provider);
     }
     async mintTokens(params) {
         if (!this.wallet) {
@@ -269,5 +279,27 @@ export class ThriveBridgeDestination extends ThriveBridge {
     }
     async isNonceProcessed(sender, nonce) {
         return await this.bridgeContract.mintNonces(sender, nonce);
+    }
+    async setComplianceRule(checkType, limit) {
+        if (!this.wallet) {
+            throw new ThriveWalletMissingError();
+        }
+        if (this.contractType !== ThriveBridgeDestinationType.COMPLIANCE) {
+            throw new ThriveFeatureNotSupportedError();
+        }
+        const tx = await this.bridgeContract.setComplianceRule(keccak256(checkType), limit);
+        await tx.wait();
+        return tx.hash;
+    }
+    async removeComplianceRule(checkType) {
+        if (!this.wallet) {
+            throw new ThriveWalletMissingError();
+        }
+        if (this.contractType !== ThriveBridgeDestinationType.COMPLIANCE) {
+            throw new ThriveFeatureNotSupportedError();
+        }
+        const tx = await this.bridgeContract.removeComplianceRule(keccak256(checkType));
+        await tx.wait();
+        return tx.hash;
     }
 }

@@ -4,7 +4,7 @@ import ThriveStakingNativeABI from './abis/ThriveStakingNative.json';
 import ThriveStakingIERC20ABI from './abis/ThriveStakingIERC20.json';
 import ThriveWalletMissingError from './errors/ThriveWalletMissingError';
 import ThriveProviderMissingError from './errors/ThriveProviderMissingError';
-import ThriveContractNotInitializedError from './errors/ThriveContractNotInitialized';
+import ThriveContractNotInitializedError from './errors/ThriveContractNotInitializedError';
 export var ThriveStakingType;
 (function (ThriveStakingType) {
     ThriveStakingType["IERC20"] = "IERC20";

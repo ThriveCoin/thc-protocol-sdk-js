@@ -8,6 +8,7 @@ const ThriveBridge_1 = require("./ThriveBridge");
 const ThriveWorkerUnit_1 = require("./ThriveWorkerUnit");
 const ThriveStaking_1 = require("./ThriveStaking");
 const ThriveOraclePriceStore_1 = require("./ThriveOraclePriceStore");
+const ThriveComplianceStore_1 = require("./ThriveComplianceStore");
 const ThriveFeatureNotInitializedError_1 = __importDefault(require("./errors/ThriveFeatureNotInitializedError"));
 class ThriveProtocol {
     constructor(params) {
@@ -27,7 +28,8 @@ class ThriveProtocol {
                 wallet: params.bridge.destinationWallet ?? params.wallet,
                 sourceAddress: params.bridge.sourceAddress,
                 destinationAddress: params.bridge.destinationAddress,
-                tokenAddress: params.bridge.destinationTokenAddress
+                tokenAddress: params.bridge.destinationTokenAddress,
+                destinationContractType: params.bridge.destinationContractType
             });
         }
         if (params.workerUnit) {
@@ -51,6 +53,13 @@ class ThriveProtocol {
                 wallet: params.oraclePrice.wallet ?? this.wallet,
                 provider: params.oraclePrice.provider ?? this.provider,
                 address: params.oraclePrice.address
+            });
+        }
+        if (params.compliance) {
+            this._compliance = new ThriveComplianceStore_1.ThriveComplianceStore({
+                wallet: params.compliance.wallet ?? this.wallet,
+                provider: params.compliance.provider ?? this.provider,
+                address: params.compliance.address
             });
         }
     }
@@ -83,6 +92,12 @@ class ThriveProtocol {
             throw new ThriveFeatureNotInitializedError_1.default();
         }
         return this._thriveOraclePrice;
+    }
+    get compliance() {
+        if (!this._compliance) {
+            throw new ThriveFeatureNotInitializedError_1.default();
+        }
+        return this._compliance;
     }
 }
 exports.ThriveProtocol = ThriveProtocol;
