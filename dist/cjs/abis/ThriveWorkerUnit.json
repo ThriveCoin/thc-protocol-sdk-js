@@ -2,40 +2,74 @@
     {
         "type": "constructor",
         "inputs": [
-            { "name": "_moderator", "type": "address", "internalType": "address" },
             {
-                "name": "_rewardToken",
-                "type": "address",
-                "internalType": "address"
-            },
-            {
-                "name": "_rewardAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            { "name": "_maxRewards", "type": "uint256", "internalType": "uint256" },
-            {
-                "name": "_validationRewardAmount",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            { "name": "_deadline", "type": "uint256", "internalType": "uint256" },
-            {
-                "name": "_maxCompletionsPerUser",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            {
-                "name": "_validators",
-                "type": "address[]",
-                "internalType": "address[]"
-            },
-            {
-                "name": "_assignedContributor",
-                "type": "address",
-                "internalType": "address"
-            },
-            { "name": "_badgeQuery", "type": "address", "internalType": "address" }
+                "name": "args",
+                "type": "tuple",
+                "internalType": "struct ThriveWorkerUnit.WorkerUnitArgs",
+                "components": [
+                    {
+                        "name": "moderator",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "rewardToken",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "rewardAmount",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "maxRewards",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "validationRewardAmount",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "deadline",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "validationMetadata",
+                        "type": "string",
+                        "internalType": "string"
+                    },
+                    {
+                        "name": "metadataVersion",
+                        "type": "string",
+                        "internalType": "string"
+                    },
+                    { "name": "metadata", "type": "string", "internalType": "string" },
+                    {
+                        "name": "maxCompletionsPerUser",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    },
+                    {
+                        "name": "validators",
+                        "type": "address[]",
+                        "internalType": "address[]"
+                    },
+                    {
+                        "name": "assignedContributor",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "badgeQuery",
+                        "type": "address",
+                        "internalType": "address"
+                    }
+                ]
+            }
         ],
         "stateMutability": "nonpayable"
     },
@@ -105,6 +139,26 @@
             { "name": "", "type": "bytes32[]", "internalType": "bytes32[]" }
         ],
         "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getRequiredNativeFunds",
+        "inputs": [
+            {
+                "name": "_rewardAmount",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            { "name": "_maxRewards", "type": "uint256", "internalType": "uint256" },
+            {
+                "name": "_validationRewardAmount",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            { "name": "_rewardToken", "type": "address", "internalType": "address" }
+        ],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "pure"
     },
     {
         "type": "function",

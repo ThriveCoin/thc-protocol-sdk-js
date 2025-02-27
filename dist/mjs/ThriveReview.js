@@ -163,10 +163,10 @@ export class ThriveReview {
     //  */
     async getContractEventsFromHash(hash) {
         if (!this.provider)
-            throw new ThriveProviderMissingError;
+            throw new ThriveProviderMissingError();
         const receipt = await this.provider.getTransactionReceipt(hash);
         if (!receipt)
-            throw new ThriveProviderTxNotFoundError;
+            throw new ThriveProviderTxNotFoundError();
         const events = [];
         const contractAddress = this.contract?.address.toString().toLowerCase();
         receipt.logs.forEach(log => {
