@@ -190,5 +190,21 @@ class ThriveStaking {
         await tx.wait();
         return tx.hash;
     }
+    async getStakedAmount(user) {
+        if (!this.wallet)
+            throw new ThriveWalletMissingError_1.default();
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError_1.default();
+        const amount = await this.contract.getStakedAmount(user);
+        return amount.toString();
+    }
+    async getWithdrawalTimestamp(user) {
+        if (!this.wallet)
+            throw new ThriveWalletMissingError_1.default();
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError_1.default();
+        const timestamp = await this.contract.getWithdrawalTimestamp(user);
+        return timestamp.toString();
+    }
 }
 exports.ThriveStaking = ThriveStaking;

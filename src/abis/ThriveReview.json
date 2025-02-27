@@ -1,0 +1,1221 @@
+[
+  { "type": "constructor", "inputs": [], "stateMutability": "nonpayable" },
+  { "type": "receive", "stateMutability": "payable" },
+  {
+    "type": "function",
+    "name": "allSubmissionsPaidOut",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "badgeQueryContractAddress",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "cancelDisputeOnSubmission",
+    "inputs": [
+      {
+        "name": "submissionId_",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimFailedDistributionFunds",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "commitToReview",
+    "inputs": [
+      {
+        "name": "submissionId_",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "committedReviewsPerSubmissionCounter",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "createSubmission",
+    "inputs": [
+      {
+        "name": "submission_",
+        "type": "tuple",
+        "internalType": "struct IThriveReview.Submission",
+        "components": [
+          { "name": "id", "type": "uint256", "internalType": "uint256" },
+          {
+            "name": "reviewCount",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "acceptedReviewsCount",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "rejectedReviewsCount",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "reviewDeadline",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "disputeDeadline",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "contributor",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "submissionMetadata",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "judgeDecisionMetadata",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "decision",
+            "type": "uint8",
+            "internalType": "enum IThriveReview.Decision"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "enum IThriveReview.SubmissionStatus"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      { "name": "submissionId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "deletePendingReview",
+    "inputs": [
+      { "name": "reviewId_", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "deletePendingReviews",
+    "inputs": [
+      {
+        "name": "reviewIds_",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "disputes",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      { "name": "disputer", "type": "address", "internalType": "address" },
+      { "name": "resolver", "type": "address", "internalType": "address" },
+      {
+        "name": "disputeMetadata",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "disputeResolutionMetadata",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "distributePayoutsForNonDisputedSubmission",
+    "inputs": [
+      {
+        "name": "submissionId_",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "distributePayoutsForNonDisputedSubmissions",
+    "inputs": [
+      {
+        "name": "submissionIds_",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "failedDistributionAmounts",
+    "inputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "failedDistributionTotalAmount",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getSubmissionDecision",
+    "inputs": [
+      {
+        "name": "submissionId_",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum IThriveReview.Decision"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getSubmissionStatus",
+    "inputs": [
+      {
+        "name": "submissionId_",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum IThriveReview.SubmissionStatus"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasWorkerUnitContract",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "idToSubmission",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [
+      { "name": "id", "type": "uint256", "internalType": "uint256" },
+      { "name": "reviewCount", "type": "uint32", "internalType": "uint32" },
+      {
+        "name": "acceptedReviewsCount",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "rejectedReviewsCount",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "reviewDeadline",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "disputeDeadline",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      { "name": "contributor", "type": "address", "internalType": "address" },
+      {
+        "name": "submissionMetadata",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "judgeDecisionMetadata",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "decision",
+        "type": "uint8",
+        "internalType": "enum IThriveReview.Decision"
+      },
+      {
+        "name": "status",
+        "type": "uint8",
+        "internalType": "enum IThriveReview.SubmissionStatus"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "initialize",
+    "inputs": [
+      {
+        "name": "reviewConfiguration_",
+        "type": "tuple",
+        "internalType": "struct IThriveReview.ReviewConfiguration",
+        "components": [
+          {
+            "name": "workUnit",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "reviewerRewardsTotalAllocation",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "reviewerReward",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "agreementThreshold",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "maximumSubmissionsPerUser",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "minimumReviews",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "maximumSubmissions",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "maximumReviewsPerSubmission",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "submissionDeadline",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "reviewCommitmentPeriod",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "reviewDeadlinePeriod",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "submitterBadges",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "reviewerBadges",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "judgeBadges",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "disputeResolverBadges",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "reviewMetadata",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "submissionMetadata",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      },
+      {
+        "name": "thriveReviewFactoryAddress_",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "badgeQueryContractAddress_",
+        "type": "address",
+        "internalType": "address"
+      },
+      { "name": "owner_", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "raiseDisputeOnSubmission",
+    "inputs": [
+      {
+        "name": "submissionId_",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "disputeMetadata_",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "reachDecisionOnSubmissionAsJudge",
+    "inputs": [
+      {
+        "name": "submissionId_",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "decision_",
+        "type": "uint8",
+        "internalType": "enum IThriveReview.Decision"
+      },
+      {
+        "name": "judgeDecisionMetadata_",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "renounceOwnership",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "resolveDisputeOnSubmission",
+    "inputs": [
+      {
+        "name": "submissionId_",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "decision_",
+        "type": "uint8",
+        "internalType": "enum IThriveReview.Decision"
+      },
+      {
+        "name": "disputeResolutionMetadata_",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "retrieveFundsByOwner",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "reviewConfiguration",
+    "inputs": [],
+    "outputs": [
+      { "name": "workUnit", "type": "address", "internalType": "address" },
+      {
+        "name": "reviewerRewardsTotalAllocation",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "reviewerReward",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "agreementThreshold",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "maximumSubmissionsPerUser",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "minimumReviews",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "maximumSubmissions",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "maximumReviewsPerSubmission",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "submissionDeadline",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "reviewCommitmentPeriod",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "reviewDeadlinePeriod",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "reviewMetadata",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "submissionMetadata",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "reviewCounter",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "reviews",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [
+      { "name": "id", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      { "name": "reviewer", "type": "address", "internalType": "address" },
+      {
+        "name": "reviewMetadata",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "commitmentDeadline",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "decision",
+        "type": "uint8",
+        "internalType": "enum IThriveReview.Decision"
+      },
+      {
+        "name": "status",
+        "type": "uint8",
+        "internalType": "enum IThriveReview.ReviewStatus"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "submissionCounter",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "submissionReviews",
+    "inputs": [
+      { "name": "", "type": "uint256", "internalType": "uint256" },
+      { "name": "", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "submissions",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [
+      { "name": "id", "type": "uint256", "internalType": "uint256" },
+      { "name": "reviewCount", "type": "uint32", "internalType": "uint32" },
+      {
+        "name": "acceptedReviewsCount",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "rejectedReviewsCount",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "reviewDeadline",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "disputeDeadline",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      { "name": "contributor", "type": "address", "internalType": "address" },
+      {
+        "name": "submissionMetadata",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "judgeDecisionMetadata",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "decision",
+        "type": "uint8",
+        "internalType": "enum IThriveReview.Decision"
+      },
+      {
+        "name": "status",
+        "type": "uint8",
+        "internalType": "enum IThriveReview.SubmissionStatus"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "submitReview",
+    "inputs": [
+      {
+        "name": "review_",
+        "type": "tuple",
+        "internalType": "struct IThriveReview.Review",
+        "components": [
+          { "name": "id", "type": "uint256", "internalType": "uint256" },
+          {
+            "name": "submissionId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "reviewer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "reviewMetadata",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "commitmentDeadline",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "decision",
+            "type": "uint8",
+            "internalType": "enum IThriveReview.Decision"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "enum IThriveReview.ReviewStatus"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "submitterReservedFunds",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "thriveReviewFactoryAddress",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "transferOwnership",
+    "inputs": [
+      { "name": "newOwner", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateSubmission",
+    "inputs": [
+      {
+        "name": "submissionMetadata_",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "submissionId_",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "userCommittedToReview",
+    "inputs": [
+      { "name": "", "type": "address", "internalType": "address" },
+      { "name": "", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "userHasAcceptedSubmission",
+    "inputs": [
+      { "name": "user", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "userHasPendingSubmission",
+    "inputs": [
+      { "name": "user", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "userInvolvedInSubmission",
+    "inputs": [
+      { "name": "", "type": "address", "internalType": "address" },
+      { "name": "", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "userSubmissions",
+    "inputs": [
+      { "name": "", "type": "address", "internalType": "address" },
+      { "name": "", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "workerUnitAddress",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "FailedDistributionFundsClaimed",
+    "inputs": [
+      {
+        "name": "claimer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "FundsRetrievedByOwner",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Initialized",
+    "inputs": [
+      {
+        "name": "version",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "NonDisputedSubmissionPayoutDistributed",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OwnershipTransferred",
+    "inputs": [
+      {
+        "name": "previousOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PendingReviewDeleted",
+    "inputs": [
+      {
+        "name": "reviewId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reviewer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ReviewCommitted",
+    "inputs": [
+      {
+        "name": "reviewId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reviewer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ReviewCreated",
+    "inputs": [
+      {
+        "name": "reviewId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ReviewerPayoutFailed",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reviewId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reviewer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ReviewerPayoutSuccessful",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reviewId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reviewer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SubmissionCreated",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SubmissionDecisionReached",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "decision",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IThriveReview.Decision"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SubmissionDecisionReachedAsBadge",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "decision",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IThriveReview.Decision"
+      },
+      {
+        "name": "badgeHolder",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SubmissionDisputeCanceled",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SubmissionDisputeResolved",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "decision",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IThriveReview.Decision"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SubmissionDisputed",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SubmissionUpdated",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SubmitterReservedFundsPaidOut",
+    "inputs": [
+      {
+        "name": "submissionId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "contributor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "decision",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IThriveReview.Decision"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ThriveReviewInitialized",
+    "inputs": [
+      {
+        "name": "thriveReviewFactoryAddress",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "badgeQueryContractAddress",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "owner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  { "type": "error", "name": "InvalidInitialization", "inputs": [] },
+  { "type": "error", "name": "NotInitializing", "inputs": [] },
+  {
+    "type": "error",
+    "name": "OwnableInvalidOwner",
+    "inputs": [
+      { "name": "owner", "type": "address", "internalType": "address" }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "OwnableUnauthorizedAccount",
+    "inputs": [
+      { "name": "account", "type": "address", "internalType": "address" }
+    ]
+  }
+]

@@ -1,5 +1,6 @@
 import { ThriveBridgeDestination, ThriveBridgeSource } from './ThriveBridge';
 import { ThriveWorkerUnit } from './ThriveWorkerUnit';
+import { ThriveReview } from './ThriveReview';
 import { ThriveStaking } from './ThriveStaking';
 import { ThriveOraclePriceStore } from './ThriveOraclePriceStore';
 import { ThriveComplianceStore } from './ThriveComplianceStore';
@@ -28,6 +29,9 @@ export class ThriveProtocol {
         }
         if (params.workerUnit) {
             this._thriveWorkerUnit = new ThriveWorkerUnit(params.workerUnit.factoryAddress, params.workerUnit.wallet ?? params.wallet, params.workerUnit.provider ?? params.provider, params.workerUnit.contractAddress);
+        }
+        if (params.review) {
+            this._thriveReview = new ThriveReview(params.review.factoryAddress, params.review.wallet ?? params.wallet, params.review.provider ?? params.provider, params.review.contractAddress);
         }
         if (params.stake) {
             this._thriveStaking = new ThriveStaking({
@@ -74,6 +78,12 @@ export class ThriveProtocol {
             throw new ThriveFeatureNotInitializedError();
         }
         return this._thriveWorkerUnit;
+    }
+    get thriveReview() {
+        if (!this._thriveReview) {
+            throw new ThriveFeatureNotInitializedError();
+        }
+        return this._thriveReview;
     }
     get thriveStaking() {
         if (!this._thriveStaking) {
