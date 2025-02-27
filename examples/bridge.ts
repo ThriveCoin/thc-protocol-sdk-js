@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { ThriveBridgeSourceType, ThriveProtocol } from '../src'
+import { ThriveBridgeSourceType, ThriveBridgeDestinationType, ThriveProtocol } from '../src'
 
 const main = async () => {
   const srcProvider = new ethers.JsonRpcProvider(process.env.SRC_RPC!)
@@ -20,7 +20,8 @@ const main = async () => {
       destinationWallet: destWallet,
       destinationProvider: destProvider,
       destinationAddress: process.env.DEST_BRIDGE!,
-      destinationTokenAddress: process.env.DEST_TOKEN!
+      destinationTokenAddress: process.env.DEST_TOKEN!,
+      destinationContractType: ThriveBridgeDestinationType.BASE
     }
   })
 
