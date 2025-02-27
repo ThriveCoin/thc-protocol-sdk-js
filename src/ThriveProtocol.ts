@@ -1,6 +1,7 @@
 import { ethers } from 'ethers'
 import { ThriveBridgeDestination, ThriveBridgeSource, ThriveBridgeSourceType, ThriveBridgeDestinationType } from './ThriveBridge'
 import { ThriveWorkerUnit } from './ThriveWorkerUnit'
+import { ThriveReview } from './ThriveReview'
 import { ThriveStakingType, ThriveStaking } from './ThriveStaking'
 import { ThriveOraclePriceStore } from './ThriveOraclePriceStore'
 import { ThriveComplianceStore } from './ThriveComplianceStore'
@@ -22,6 +23,12 @@ export interface ThriveProtocolOptions {
     destinationTokenAddress: string
   },
   workerUnit?: {
+    factoryAddress: string,
+    wallet: ethers.Wallet,
+    provider: ethers.Provider,
+    contractAddress?: string
+  },
+  review?: {
     factoryAddress: string,
     wallet: ethers.Wallet,
     provider: ethers.Provider,
@@ -55,6 +62,7 @@ export class ThriveProtocol {
   protected _thriveBridgeSource?: ThriveBridgeSource
   protected _thriveBridgeDestination?: ThriveBridgeDestination
   protected _thriveWorkerUnit?: ThriveWorkerUnit
+  protected _thriveReview?: ThriveReview
   protected _thriveStaking?: ThriveStaking
   protected _thriveOraclePrice?: ThriveOraclePriceStore
   protected _compliance?: ThriveComplianceStore
@@ -88,6 +96,15 @@ export class ThriveProtocol {
         params.workerUnit.wallet ?? params.wallet,
         params.workerUnit.provider ?? params.provider,
         params.workerUnit.contractAddress
+      )
+    }
+
+    if (params.review) {
+      this._thriveReview = new ThriveReview(
+        params.review.factoryAddress,
+        params.review.wallet ?? params.wallet!,
+        params.review.provider ?? params.provider!,
+        params.review.contractAddress
       )
     }
 
@@ -144,6 +161,13 @@ export class ThriveProtocol {
       throw new ThriveFeatureNotInitializedError()
     }
     return this._thriveWorkerUnit
+  }
+
+  get thriveReview (): ThriveReview {
+    if (!this._thriveReview) {
+      throw new ThriveFeatureNotInitializedError()
+    }
+    return this._thriveReview
   }
 
   get thriveStaking (): ThriveStaking {
