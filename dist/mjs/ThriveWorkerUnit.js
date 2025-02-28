@@ -49,13 +49,14 @@ export class ThriveWorkerUnit {
         }
         return this.wallet.address;
     }
-    async createNewWorkerUnit(workerUnitOptions, value) {
+    async createNewWorkerUnit(workerUnitOptions) {
         if (!this.wallet) {
             throw new ThriveWalletMissingError();
         }
         if (!this.factoryContract) {
             throw new Error('Factory contract is not deployed');
         }
+        const requiredNativeFunds = await this.factoryContract.getRequiredNativeFunds(workerUnitOptions.rewardAmount, workerUnitOptions.maxRewards, workerUnitOptions.validationRewardAmount, workerUnitOptions.rewardToken ?? ethers.ZeroAddress);
         const tx = await this.factoryContract.createThriveWorkUnit({
             moderator: workerUnitOptions.moderator,
             rewardToken: workerUnitOptions.rewardToken ?? ethers.ZeroAddress,
@@ -63,12 +64,15 @@ export class ThriveWorkerUnit {
             maxRewards: workerUnitOptions.maxRewards,
             validationRewardAmount: workerUnitOptions.validationRewardAmount,
             deadline: workerUnitOptions.deadline,
+            validationMetadata: workerUnitOptions.validationMetadata,
+            metadataVersion: workerUnitOptions.metadataVersion,
+            metadata: workerUnitOptions.metadata,
             maxCompletionsPerUser: workerUnitOptions.maxCompletionsPerUser,
             validators: workerUnitOptions.validators,
             assignedContributor: workerUnitOptions.assignedContributor,
             badgeQuery: workerUnitOptions.badgeQuery
         }, {
-            value
+            value: requiredNativeFunds
         });
         const receipt = await tx.wait();
         const eventInterface = new ethers.Interface([

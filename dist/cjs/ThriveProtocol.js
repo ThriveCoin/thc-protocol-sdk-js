@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ThriveProtocol = void 0;
 const ThriveBridge_1 = require("./ThriveBridge");
 const ThriveWorkerUnit_1 = require("./ThriveWorkerUnit");
+const ThriveReview_1 = require("./ThriveReview");
 const ThriveStaking_1 = require("./ThriveStaking");
 const ThriveOraclePriceStore_1 = require("./ThriveOraclePriceStore");
 const ThriveComplianceStore_1 = require("./ThriveComplianceStore");
@@ -34,6 +35,9 @@ class ThriveProtocol {
         }
         if (params.workerUnit) {
             this._thriveWorkerUnit = new ThriveWorkerUnit_1.ThriveWorkerUnit(params.workerUnit.factoryAddress, params.workerUnit.wallet ?? params.wallet, params.workerUnit.provider ?? params.provider, params.workerUnit.contractAddress);
+        }
+        if (params.review) {
+            this._thriveReview = new ThriveReview_1.ThriveReview(params.review.factoryAddress, params.review.wallet ?? params.wallet, params.review.provider ?? params.provider, params.review.contractAddress);
         }
         if (params.stake) {
             this._thriveStaking = new ThriveStaking_1.ThriveStaking({
@@ -80,6 +84,12 @@ class ThriveProtocol {
             throw new ThriveFeatureNotInitializedError_1.default();
         }
         return this._thriveWorkerUnit;
+    }
+    get thriveReview() {
+        if (!this._thriveReview) {
+            throw new ThriveFeatureNotInitializedError_1.default();
+        }
+        return this._thriveReview;
     }
     get thriveStaking() {
         if (!this._thriveStaking) {

@@ -21,6 +21,9 @@ const main = async () => {
     maxRewards: ethers.parseEther('1').toString(),
     validationRewardAmount: ethers.parseEther('0.01').toString(),
     deadline: (Date.now() + 7 * 24 * 60 * 60 * 1000),
+    validationMetadata: 'validationMetadataTest',
+    metadataVersion: 'metadataVersion - 1.0',
+    metadata: 'metadataTest',
     maxCompletionsPerUser: 2,
     validators: [wallet.address, '0xCcb975a08d189bF86f0B1A0B2CB9ba49b9255D7a'],
     assignedContributor: '0x0000000000000000000000000000000000000000',
@@ -40,7 +43,7 @@ const main = async () => {
     console.log('Withdrawn Event:', event)
   })
 
-  const newWorkerUnitAddress = await sdk.thriveWorkerUnit.createNewWorkerUnit(workerUnitOptions, ethers.parseEther('2').toString())
+  const newWorkerUnitAddress = await sdk.thriveWorkerUnit.createNewWorkerUnit(workerUnitOptions)
   console.log('New Worker Unit Address:', newWorkerUnitAddress)
 
   const confirmTxHash = await sdk.thriveWorkerUnit.confirm(wallet.address, 'exampleValidationMetadata')

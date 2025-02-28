@@ -45,6 +45,9 @@ export interface ThriveWorkerUnitOptions {
   maxRewards: string,
   validationRewardAmount?: string,
   deadline: number,
+  validationMetadata: string,
+  metadataVersion: string,
+  metadata: string,
   maxCompletionsPerUser: number,
   validators: Array<string>,
   assignedContributor: string,
@@ -97,13 +100,19 @@ export class ThriveWorkerUnit {
     return this.wallet.address
   }
 
-  public async createNewWorkerUnit (workerUnitOptions: ThriveWorkerUnitOptions, value: string): Promise<string> {
+  public async createNewWorkerUnit (workerUnitOptions: ThriveWorkerUnitOptions): Promise<string> {
     if (!this.wallet) {
       throw new ThriveWalletMissingError()
     }
     if (!this.factoryContract) {
       throw new Error('Factory contract is not deployed')
     }
+    const requiredNativeFunds = await this.factoryContract.getRequiredNativeFunds(
+      workerUnitOptions.rewardAmount,
+      workerUnitOptions.maxRewards,
+      workerUnitOptions.validationRewardAmount,
+      workerUnitOptions.rewardToken ?? ethers.ZeroAddress
+    )
     const tx = await this.factoryContract.createThriveWorkUnit(
       {
         moderator: workerUnitOptions.moderator,
@@ -112,13 +121,16 @@ export class ThriveWorkerUnit {
         maxRewards: workerUnitOptions.maxRewards,
         validationRewardAmount: workerUnitOptions.validationRewardAmount,
         deadline: workerUnitOptions.deadline,
+        validationMetadata: workerUnitOptions.validationMetadata,
+        metadataVersion: workerUnitOptions.metadataVersion,
+        metadata: workerUnitOptions.metadata,
         maxCompletionsPerUser: workerUnitOptions.maxCompletionsPerUser,
         validators: workerUnitOptions.validators,
         assignedContributor: workerUnitOptions.assignedContributor,
         badgeQuery: workerUnitOptions.badgeQuery
       },
       {
-        value
+        value: requiredNativeFunds
       }
     )
     const receipt = await tx.wait()

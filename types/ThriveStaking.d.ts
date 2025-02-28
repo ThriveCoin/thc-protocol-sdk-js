@@ -58,4 +58,6 @@ export declare class ThriveStaking {
   calculateYield(address?: string): Promise<string>;
   setYieldRate(newYieldRate: string): Promise<string>;
   setMinStakingAmount(newMin: string): Promise<string>;
+  getStakedAmount(user: string): Promise<string>;
+  getWithdrawalTimestamp(user: string): Promise<string>;
 }
