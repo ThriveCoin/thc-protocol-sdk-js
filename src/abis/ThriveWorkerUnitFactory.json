@@ -76,6 +76,26 @@
     "stateMutability": "payable"
   },
   {
+    "type": "function",
+    "name": "getRequiredNativeFunds",
+    "inputs": [
+      {
+        "name": "_rewardAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      { "name": "_maxRewards", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "_validationRewardAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      { "name": "_rewardToken", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "pure"
+  },
+  {
     "type": "event",
     "name": "ThriveWorkerUnitCreated",
     "inputs": [
