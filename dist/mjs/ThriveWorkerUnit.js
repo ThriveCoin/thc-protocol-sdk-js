@@ -56,6 +56,11 @@ export class ThriveWorkerUnit {
         if (!this.factoryContract) {
             throw new Error('Factory contract is not deployed');
         }
+        if (workerUnitOptions.rewardToken && workerUnitOptions.rewardToken !== ethers.ZeroAddress) {
+            const tokenContract = new ethers.Contract(workerUnitOptions.rewardToken, ThriveIERC20WrapperABI, this.wallet);
+            const approvalTx = await tokenContract.approve(this.factoryContract.address, workerUnitOptions.maxRewards);
+            await approvalTx.wait();
+        }
         const requiredNativeFunds = await this.factoryContract.getRequiredNativeFunds(workerUnitOptions.rewardAmount, workerUnitOptions.maxRewards, workerUnitOptions.validationRewardAmount, workerUnitOptions.rewardToken ?? ethers.ZeroAddress);
         const tx = await this.factoryContract.createThriveWorkUnit({
             moderator: workerUnitOptions.moderator,
