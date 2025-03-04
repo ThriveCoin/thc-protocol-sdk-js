@@ -4,6 +4,7 @@ import { EventEmitter } from 'events'
 import ThriveWorkerUnitABI from './abis/ThriveWorkerUnit.json'
 import ThriveWorkerUnitFactoryABI from './abis/ThriveWorkerUnitFactory.json'
 import ThriveIERC20WrapperABI from './abis/ThriveIERC20Wrapper.json'
+import ERC20ABI from './abis/ERC20.json'
 import ThriveWalletMissingError from './errors/ThriveWalletMissingError'
 import ThriveProviderMissingError from './errors/ThriveProviderMissingError'
 import ThriveProviderTxNotFoundError from './errors/ThriveProviderTxNotFoundError'
@@ -108,8 +109,8 @@ export class ThriveWorkerUnit {
       throw new Error('Factory contract is not deployed')
     }
     if (workerUnitOptions.rewardToken && workerUnitOptions.rewardToken !== ethers.ZeroAddress) {
-      const tokenContract = new ethers.Contract(workerUnitOptions.rewardToken, ThriveIERC20WrapperABI, this.wallet)
-      const approvalTx = await tokenContract.approve(this.factoryContract.address, workerUnitOptions.maxRewards)
+      const tokenContract = new ethers.Contract(workerUnitOptions.rewardToken, ERC20ABI, this.wallet)
+      const approvalTx = await tokenContract.approve(this.factoryAddress, workerUnitOptions.maxRewards)
       await approvalTx.wait()
     }
     const requiredNativeFunds = await this.factoryContract.getRequiredNativeFunds(
