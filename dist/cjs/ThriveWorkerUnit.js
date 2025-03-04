@@ -9,6 +9,7 @@ const events_1 = require("events");
 const ThriveWorkerUnit_json_1 = __importDefault(require("./abis/ThriveWorkerUnit.json"));
 const ThriveWorkerUnitFactory_json_1 = __importDefault(require("./abis/ThriveWorkerUnitFactory.json"));
 const ThriveIERC20Wrapper_json_1 = __importDefault(require("./abis/ThriveIERC20Wrapper.json"));
+const ERC20_json_1 = __importDefault(require("./abis/ERC20.json"));
 const ThriveWalletMissingError_1 = __importDefault(require("./errors/ThriveWalletMissingError"));
 const ThriveProviderMissingError_1 = __importDefault(require("./errors/ThriveProviderMissingError"));
 const ThriveProviderTxNotFoundError_1 = __importDefault(require("./errors/ThriveProviderTxNotFoundError"));
@@ -63,8 +64,8 @@ class ThriveWorkerUnit {
             throw new Error('Factory contract is not deployed');
         }
         if (workerUnitOptions.rewardToken && workerUnitOptions.rewardToken !== ethers_1.ethers.ZeroAddress) {
-            const tokenContract = new ethers_1.ethers.Contract(workerUnitOptions.rewardToken, ThriveIERC20Wrapper_json_1.default, this.wallet);
-            const approvalTx = await tokenContract.approve(this.factoryContract.address, workerUnitOptions.maxRewards);
+            const tokenContract = new ethers_1.ethers.Contract(workerUnitOptions.rewardToken, ERC20_json_1.default, this.wallet);
+            const approvalTx = await tokenContract.approve(this.factoryAddress, workerUnitOptions.maxRewards);
             await approvalTx.wait();
         }
         const requiredNativeFunds = await this.factoryContract.getRequiredNativeFunds(workerUnitOptions.rewardAmount, workerUnitOptions.maxRewards, workerUnitOptions.validationRewardAmount, workerUnitOptions.rewardToken ?? ethers_1.ethers.ZeroAddress);
