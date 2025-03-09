@@ -18,32 +18,33 @@ export enum ThriveStakingEventEnum {
   YieldClaimed = 'YieldClaimed'
 }
 
-export type ThriveStakingEventKey = keyof typeof ThriveStakingEventEnum
+export type ThriveStakingEventKey = keyof typeof ThriveStakingEventEnum;
 
 export interface ThriveStakingEvent {
-  fragment: ethers.EventFragment,
-  log: ethers.EventLog,
-  type: ThriveStakingEventKey
-  user: string
-  amount: string
-  yield: string
-  timestamp: number
-  block?: string
-  tx?: string
+  fragment: ethers.EventFragment;
+  log: ethers.EventLog;
+  type: ThriveStakingEventKey;
+  user: string;
+  amount: string;
+  yield: string;
+  epoch?: string; // Added for YieldClaimed event
+  timestamp: number;
+  block?: string;
+  tx?: string;
 }
 
-export type ThriveStakingEventListener = (event: ThriveStakingEvent) => void
+export type ThriveStakingEventListener = (event: ThriveStakingEvent) => void;
 
 export interface ThriveStakingOptions {
-  wallet?: ethers.Wallet
-  provider?: ethers.Provider
-  nativeAddress: string
-  ierc20Address: string
-  token: string
-  yieldRate: string
-  minStakingAmount: string
-  accessControlEnumerable: string
-  role: string
+  wallet?: ethers.Wallet;
+  provider?: ethers.Provider;
+  nativeAddress: string;
+  ierc20Address: string;
+  token: string;
+  yieldRate: string;
+  minStakingAmount: string;
+  accessControlEnumerable: string;
+  role: string;
 }
 
 export class ThriveStaking {
@@ -78,8 +79,7 @@ export class ThriveStaking {
     ]
     this.eventInterface = new ethers.Interface(eventAbis)
 
-    this.eventListener =
-          new EventEmitter<Record<ThriveStakingEventKey, [event: ThriveStakingEvent]>>({ captureRejections: true })
+    this.eventListener = new EventEmitter<Record<ThriveStakingEventKey, [event: ThriveStakingEvent]>>({ captureRejections: true })
   }
 
   private initContract () {
@@ -143,6 +143,7 @@ export class ThriveStaking {
         user: args[0].toString(),
         amount: '0',
         yield: args[1].toString(),
+        epoch: args[2].toString(), // Added epoch field
         timestamp: Date.now(),
         block: ev.log.blockNumber.toString(),
         tx: ev.log.transactionHash
@@ -194,7 +195,6 @@ export class ThriveStaking {
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
     const tx = await this.contract.withdraw()
-
     await tx.wait()
 
     return tx.hash
@@ -205,18 +205,19 @@ export class ThriveStaking {
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
     const tx = await this.contract.claimYield()
-
     await tx.wait()
 
     return tx.hash
   }
 
-  public async calculateYield (address?: string): Promise<string> {
+  public async calculateYield (address?: string): Promise<{ claimableYield: string; ongoingYield: string }> {
     if (!this.contract) throw new ThriveContractNotInitializedError()
     const userAddress = address || this.getWalletAddress()
-    const yieldAmount = await this.contract.calculateYield(userAddress)
-
-    return yieldAmount.toString()
+    const [claimableYield, ongoingYield] = await this.contract.calculateYield(userAddress)
+    return {
+      claimableYield: claimableYield.toString(),
+      ongoingYield: ongoingYield.toString()
+    }
   }
 
   public async setYieldRate (newYieldRate: string): Promise<string> {
@@ -234,27 +235,22 @@ export class ThriveStaking {
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
     const tx = await this.contract.setMinStakingAmount(newMin)
-
     await tx.wait()
 
     return tx.hash
   }
 
   public async getStakedAmount (user: string): Promise<string> {
-    if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
     const amount = await this.contract.getStakedAmount(user)
-
     return amount.toString()
   }
 
-  public async getWithdrawalTimestamp (user: string): Promise<string> {
-    if (!this.wallet) throw new ThriveWalletMissingError()
+  public async getEpochEndTimestamp (user: string): Promise<string> {
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
-    const timestamp = await this.contract.getWithdrawalTimestamp(user)
-
+    const timestamp = await this.contract.getEpochEndTimestamp(user)
     return timestamp.toString()
   }
 }
