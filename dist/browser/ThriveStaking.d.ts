@@ -17,6 +17,7 @@ export interface ThriveStakingEvent {
     user: string;
     amount: string;
     yield: string;
+    epoch?: string;
     timestamp: number;
     block?: string;
     tx?: string;
@@ -55,9 +56,12 @@ export declare class ThriveStaking {
     stake(amount: string): Promise<string>;
     withdraw(): Promise<string>;
     claimYield(): Promise<string>;
-    calculateYield(address?: string): Promise<string>;
+    calculateYield(address?: string): Promise<{
+        claimableYield: string;
+        ongoingYield: string;
+    }>;
     setYieldRate(newYieldRate: string): Promise<string>;
     setMinStakingAmount(newMin: string): Promise<string>;
     getStakedAmount(user: string): Promise<string>;
-    getWithdrawalTimestamp(user: string): Promise<string>;
+    getEpochEndTimestamp(user: string): Promise<string>;
 }
