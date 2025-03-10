@@ -38,14 +38,16 @@ const main = async () => {
 
   console.log('Calculating yield earned immediately after staking...')
   const yieldEarned = await sdk.thriveStaking.calculateYield()
-  console.log('Yield Earned (in wei):', yieldEarned)
-  console.log('Yield Earned (in Thrive):', ethers.formatEther(yieldEarned))
+  console.log('Claimable Yield (in wei):', yieldEarned.claimableYield)
+  console.log('Ongoing Yield (in wei):', yieldEarned.ongoingYield)
+  console.log('Claimable Yield (in Thrive):', ethers.formatEther(yieldEarned.claimableYield))
+  console.log('Ongoing Yield Earned (in Thrive):', ethers.formatEther(yieldEarned.ongoingYield))
 
   setTimeout(async () => {
     try {
       const yieldAfterOneMinute = await sdk.thriveStaking.calculateYield()
-      console.log('Yield after 1 minute (in wei):', yieldAfterOneMinute)
-      console.log('Yield after 1 minute (in Thrive):', ethers.formatEther(yieldAfterOneMinute))
+      console.log('Yield after 1 minute (in wei):', yieldAfterOneMinute.ongoingYield)
+      console.log('Yield after 1 minute (in Thrive):', ethers.formatEther(yieldAfterOneMinute.ongoingYield))
     } catch (error) {
       console.error('Error calculating yield after 1 minute:', error)
     }
@@ -55,7 +57,7 @@ const main = async () => {
     try {
       const yieldAfterTwoMinutes = await sdk.thriveStaking.calculateYield()
       console.log('Yield after 2 minutes (in wei):', yieldAfterTwoMinutes)
-      console.log('Yield after 2 minutes (in Thrive):', ethers.formatEther(yieldAfterTwoMinutes))
+      console.log('Yield after 2 minutes (in Thrive):', ethers.formatEther(yieldAfterTwoMinutes.ongoingYield))
 
       console.log('Claiming yield...')
       const claimTxHash = await sdk.thriveStaking.claimYield()
@@ -63,7 +65,7 @@ const main = async () => {
 
       const yieldAfterClaim = await sdk.thriveStaking.calculateYield()
       console.log('Yield after claiming (in wei):', yieldAfterClaim)
-      console.log('Yield after claiming (in Thrive):', ethers.formatEther(yieldAfterClaim))
+      console.log('Yield after claiming (in Thrive):', ethers.formatEther(yieldAfterClaim.ongoingYield))
     } catch (error) {
       console.error('Error calculating yield after 2 minutes:', error)
     }

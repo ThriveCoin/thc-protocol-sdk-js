@@ -35,8 +35,7 @@ export class ThriveStaking {
             ...ThriveStakingIERC20ABI.filter((item) => item.type === 'event')
         ];
         this.eventInterface = new ethers.Interface(eventAbis);
-        this.eventListener =
-            new EventEmitter({ captureRejections: true });
+        this.eventListener = new EventEmitter({ captureRejections: true });
     }
     initContract() {
         if (!this.provider && !this.wallet) {
@@ -97,6 +96,7 @@ export class ThriveStaking {
                 user: args[0].toString(),
                 amount: '0',
                 yield: args[1].toString(),
+                epoch: args[2].toString(), // Added epoch field
                 timestamp: Date.now(),
                 block: ev.log.blockNumber.toString(),
                 tx: ev.log.transactionHash
@@ -163,8 +163,11 @@ export class ThriveStaking {
         if (!this.contract)
             throw new ThriveContractNotInitializedError();
         const userAddress = address || this.getWalletAddress();
-        const yieldAmount = await this.contract.calculateYield(userAddress);
-        return yieldAmount.toString();
+        const [claimableYield, ongoingYield] = await this.contract.calculateYield(userAddress);
+        return {
+            claimableYield: claimableYield.toString(),
+            ongoingYield: ongoingYield.toString()
+        };
     }
     async setYieldRate(newYieldRate) {
         if (!this.wallet)
@@ -185,19 +188,15 @@ export class ThriveStaking {
         return tx.hash;
     }
     async getStakedAmount(user) {
-        if (!this.wallet)
-            throw new ThriveWalletMissingError();
         if (!this.contract)
             throw new ThriveContractNotInitializedError();
         const amount = await this.contract.getStakedAmount(user);
         return amount.toString();
     }
-    async getWithdrawalTimestamp(user) {
-        if (!this.wallet)
-            throw new ThriveWalletMissingError();
+    async getEpochEndTimestamp(user) {
         if (!this.contract)
             throw new ThriveContractNotInitializedError();
-        const timestamp = await this.contract.getWithdrawalTimestamp(user);
+        const timestamp = await this.contract.getEpochEndTimestamp(user);
         return timestamp.toString();
     }
 }

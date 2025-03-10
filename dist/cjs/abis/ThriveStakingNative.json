@@ -2,7 +2,14 @@
     { "type": "receive", "stateMutability": "payable" },
     {
         "type": "function",
-        "name": "MIN_STAKING_PERIOD",
+        "name": "EPOCH_DURATION",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "HALF_EPOCH_DURATION",
         "inputs": [],
         "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
         "stateMutability": "view"
@@ -40,7 +47,14 @@
         "inputs": [
             { "name": "staker", "type": "address", "internalType": "address" }
         ],
-        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "outputs": [
+            {
+                "name": "claimableYield",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            { "name": "ongoingYield", "type": "uint256", "internalType": "uint256" }
+        ],
         "stateMutability": "view"
     },
     {
@@ -52,7 +66,31 @@
     },
     {
         "type": "function",
-        "name": "getStakedAmount",
+        "name": "claimedEpoch",
+        "inputs": [
+            { "name": "", "type": "address", "internalType": "address" },
+            { "name": "", "type": "uint256", "internalType": "uint256" }
+        ],
+        "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "currentEpoch",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "epochStart",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getEpochEndTimestamp",
         "inputs": [
             { "name": "user", "type": "address", "internalType": "address" }
         ],
@@ -61,7 +99,7 @@
     },
     {
         "type": "function",
-        "name": "getWithdrawalTimestamp",
+        "name": "getStakedAmount",
         "inputs": [
             { "name": "user", "type": "address", "internalType": "address" }
         ],
@@ -166,13 +204,27 @@
         "name": "stakers",
         "inputs": [{ "name": "", "type": "address", "internalType": "address" }],
         "outputs": [
-            { "name": "amount", "type": "uint256", "internalType": "uint256" },
-            { "name": "stakingTime", "type": "uint256", "internalType": "uint256" },
             {
-                "name": "lastYieldTime",
+                "name": "firstHalfAmount",
                 "type": "uint256",
                 "internalType": "uint256"
-            }
+            },
+            {
+                "name": "firstHalfTimestamp",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "secondHalfAmount",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "secondHalfTimestamp",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            { "name": "epoch", "type": "uint256", "internalType": "uint256" }
         ],
         "stateMutability": "view"
     },
@@ -295,7 +347,7 @@
                 "internalType": "address"
             },
             {
-                "name": "amount",
+                "name": "principal",
                 "type": "uint256",
                 "indexed": false,
                 "internalType": "uint256"
@@ -321,6 +373,12 @@
             },
             {
                 "name": "yield",
+                "type": "uint256",
+                "indexed": false,
+                "internalType": "uint256"
+            },
+            {
+                "name": "epoch",
                 "type": "uint256",
                 "indexed": false,
                 "internalType": "uint256"
@@ -369,6 +427,8 @@
     {
         "type": "error",
         "name": "UUPSUnsupportedProxiableUUID",
-        "inputs": [{ "name": "slot", "type": "bytes32", "internalType": "bytes32" }]
+        "inputs": [
+            { "name": "slot", "type": "bytes32", "internalType": "bytes32" }
+        ]
     }
 ]
