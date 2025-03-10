@@ -117,6 +117,16 @@
                 "internalType": "uint256"
             },
             {
+                "name": "_epochDuration",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
+                "name": "_halfEpochDuration",
+                "type": "uint256",
+                "internalType": "uint256"
+            },
+            {
                 "name": "_accessControlEnumerable",
                 "type": "address",
                 "internalType": "address"
