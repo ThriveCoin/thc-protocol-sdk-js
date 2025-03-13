@@ -26,9 +26,12 @@ async function main () {
     tokenType: ThriveWorkerUnitTokenType.NATIVE,
     rewardAmount: ethers.parseEther('0.1').toString(),
     maxRewards: ethers.parseEther('1').toString(),
-    validationRewardAmount: ethers.parseEther('0.01').toString(),
+    validationRewardAmount: ethers.parseEther('0.1').toString(),
     deadline: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days from now
-    maxCompletionsPerUser: 2,
+    validationMetadata: 'validation metadata test',
+    metadataVersion: '1.0',
+    metadata: 'metadata test',
+    maxCompletionsPerUser: 1,
     validators: [], // The factory function will override this with the new review contract as sole validator
     assignedContributor: ethers.ZeroAddress,
     badgeQuery: wallet.address
@@ -36,19 +39,22 @@ async function main () {
 
   const reviewConfiguration: ThriveReviewOptions = {
     workUnit: ethers.ZeroAddress, // This will be replaced by the new Worker Unit address on-chain
-    maximumSubmissions: 10,
-    maximumSubmissionsPerUser: 2,
-    submissionDeadline: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days
-    reviewDeadlinePeriod: 3 * 24 * 60 * 60, // 3 days
-    reviewCommitmentPeriod: 1 * 24 * 60 * 60, // 1 day
-    minimumReviews: 1,
-    maximumReviewsPerSubmission: 3,
+    reviewerRewardsTotalAllocation: '0',
+    reviewerReward: '0',
     agreementThreshold: 6000, // e.g. 60%
-    reviewerReward: ethers.parseEther('0.01').toString(),
-    reviewerRewardsTotalAllocation: ethers.parseEther('1').toString(),
-    judgeBadges: [],
+    maximumSubmissionsPerUser: 3,
+    minimumReviews: 1,
+    maximumSubmissions: 10,
+    maximumReviewsPerSubmission: 3,
+    submissionDeadline: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days
+    reviewCommitmentPeriod: 5 * 24 * 60 * 60, // 1 day
+    reviewDeadlinePeriod: 10 * 24 * 60 * 60, // 3 days
+    submitterBadges: [],
     reviewerBadges: [],
-    submitterBadges: []
+    judgeBadges: [],
+    disputeResolverBadges: [],
+    reviewMetadata: 'review test',
+    submissionMetadata: 'submission test'
   }
 
   //    We pass 'value' to fund both the worker unit's rewards & the reviewer rewards.
@@ -67,12 +73,6 @@ async function main () {
   console.log('Worker Unit Contract Address:', workUnitContract)
   console.log('Review Contract Address:', reviewContract)
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // RE-INSTANTIATE THE PROTOCOL FOR THE NEW REVIEW CONTRACT
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Since the newly created review contract address is known, we can create a
-  // new ThriveProtocol instance pointing to it for further operations (submissions, reviews, etc.)
-
   const protocolWithNewReview = new ThriveProtocol({
     provider,
     wallet,
@@ -89,21 +89,77 @@ async function main () {
     'ipfs://submissionMetadata',
     ethers.parseEther('0.05').toString()
   )
-  console.log('Submission Tx:', submissionTxHash)
+  console.log('Submission Tx Hash:', submissionTxHash)
+
+  console.log('--- Updating Submission ---')
+  const updateTxHash = await protocolWithNewReview.thriveReview.updateSubmission(
+    BigInt(0), // submission id
+    'ipfs://updatedSubmissionMetadata'
+  )
+  console.log('Update Submission Tx Hash:', updateTxHash)
 
   console.log('--- Committing to Review ---')
-  const commitTxHash = await protocolWithNewReview.thriveReview.commitToReview(0)
-  console.log('Commit Tx:', commitTxHash)
+  const commitTxHash = await protocolWithNewReview.thriveReview.commitToReview(BigInt(0))
+  console.log('Commit Tx Hash:', commitTxHash)
 
-  console.log('--- Submitting the Review ---')
+  console.log('--- Submitting a Review ---')
   const reviewTxHash = await protocolWithNewReview.thriveReview.submitReview(
-    0, // reviewId
-    0, // 0 => ACCEPTED
+    BigInt(0), // review id
+    0, // decision (e.g., 0 for ACCEPTED)
     'ipfs://reviewMetadata'
   )
-  console.log('Review Tx:', reviewTxHash)
+  console.log('Review Submission Tx Hash:', reviewTxHash)
 
-  // TODO: disputes, payouts, etc. as normal
+  console.log('--- Deleting Pending Review ---')
+  const deletePendingReviewTxHash = await protocolWithNewReview.thriveReview.deletePendingReview(0)
+  console.log('Delete Pending Review Tx Hash:', deletePendingReviewTxHash)
+
+  console.log('--- Deleting Multiple Pending Reviews ---')
+  const deletePendingReviewsTxHash = await protocolWithNewReview.thriveReview.deletePendingReviews([1, 2])
+  console.log('Delete Pending Reviews Tx Hash:', deletePendingReviewsTxHash)
+
+  console.log('--- Reaching Decision as Judge ---')
+  const judgeDecisionTxHash = await protocolWithNewReview.thriveReview.reachDecisionOnSubmissionAsJudge(
+    0,
+    0, // decision (e.g., 0 for ACCEPTED or REJECTED as per enum)
+    'ipfs://judgeDecisionMetadata'
+  )
+  console.log('Judge Decision Tx Hash:', judgeDecisionTxHash)
+
+  console.log('--- Claiming Failed Distribution Funds ---')
+  const claimFundsTxHash = await protocolWithNewReview.thriveReview.claimFailedDistributionFunds()
+  console.log('Claim Failed Distribution Funds Tx Hash:', claimFundsTxHash)
+
+  console.log('--- Retrieving Funds by Owner ---')
+  const retrieveFundsTxHash = await protocolWithNewReview.thriveReview.retrieveFundsByOwner()
+  console.log('Retrieve Funds Tx Hash:', retrieveFundsTxHash)
+
+  console.log('--- Raising Dispute on Submission ---')
+  const raiseDisputeTxHash = await protocolWithNewReview.thriveReview.raiseDisputeOnSubmission(
+    0,
+    'ipfs://disputeMetadata'
+  )
+  console.log('Raise Dispute Tx Hash:', raiseDisputeTxHash)
+
+  console.log('--- Resolving Dispute on Submission ---')
+  const resolveDisputeTxHash = await protocolWithNewReview.thriveReview.resolveDisputeOnSubmission(
+    0,
+    0, // decision (e.g., 0 for ACCEPTED or REJECTED)
+    'ipfs://disputeResolutionMetadata'
+  )
+  console.log('Resolve Dispute Tx Hash:', resolveDisputeTxHash)
+
+  console.log('--- Canceling Dispute on Submission ---')
+  const cancelDisputeTxHash = await protocolWithNewReview.thriveReview.cancelDisputeOnSubmission(0)
+  console.log('Cancel Dispute Tx Hash:', cancelDisputeTxHash)
+
+  console.log('--- Distributing Payouts for Non‑Disputed Submissions ---')
+  const distributePayoutsTxHash = await protocolWithNewReview.thriveReview.distributePayoutsForNonDisputedSubmissions([0])
+  console.log('Distribute Payouts Tx Hash:', distributePayoutsTxHash)
+
+  console.log('--- Distributing Payout for a Single Non‑Disputed Submission ---')
+  const distributeSinglePayoutTxHash = await protocolWithNewReview.thriveReview.distributePayoutsForNonDisputedSubmission(0)
+  console.log('Distribute Single Payout Tx Hash:', distributeSinglePayoutTxHash)
 }
 
 main().catch(console.error)

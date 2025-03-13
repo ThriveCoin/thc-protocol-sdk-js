@@ -181,6 +181,17 @@
                         "internalType": "uint256"
                     },
                     {
+                        "name": "validationMetadata",
+                        "type": "string",
+                        "internalType": "string"
+                    },
+                    {
+                        "name": "metadataVersion",
+                        "type": "string",
+                        "internalType": "string"
+                    },
+                    { "name": "metadata", "type": "string", "internalType": "string" },
+                    {
                         "name": "maxCompletionsPerUser",
                         "type": "uint256",
                         "internalType": "uint256"
@@ -531,6 +542,8 @@
     {
         "type": "error",
         "name": "UUPSUnsupportedProxiableUUID",
-        "inputs": [{ "name": "slot", "type": "bytes32", "internalType": "bytes32" }]
+        "inputs": [
+            { "name": "slot", "type": "bytes32", "internalType": "bytes32" }
+        ]
     }
 ]

@@ -15,7 +15,8 @@ export enum ThriveStakingType {
 export enum ThriveStakingEventEnum {
   Staked = 'Staked',
   Withdrawn = 'Withdrawn',
-  YieldClaimed = 'YieldClaimed'
+  YieldClaimed = 'YieldClaimed',
+  YieldStaked = 'YieldStaked'
 }
 
 export type ThriveStakingEventKey = keyof typeof ThriveStakingEventEnum;
@@ -27,7 +28,7 @@ export interface ThriveStakingEvent {
   user: string;
   amount: string;
   yield: string;
-  epoch?: string; // Added for YieldClaimed event
+  epoch?: string; // Present for YieldClaimed
   timestamp: number;
   block?: string;
   tx?: string;
@@ -40,11 +41,7 @@ export interface ThriveStakingOptions {
   provider?: ethers.Provider;
   nativeAddress: string;
   ierc20Address: string;
-  token: string;
-  yieldRate: string;
-  minStakingAmount: string;
-  accessControlEnumerable: string;
-  role: string;
+  token: string; // ERC20 token address (used for IERC20 staking)
 }
 
 export class ThriveStaking {
@@ -60,7 +57,8 @@ export class ThriveStaking {
   protected eventListenerCount = new Map<ThriveStakingEventKey, number>([
     [ThriveStakingEventEnum.Withdrawn, 0],
     [ThriveStakingEventEnum.YieldClaimed, 0],
-    [ThriveStakingEventEnum.Staked, 0]
+    [ThriveStakingEventEnum.Staked, 0],
+    [ThriveStakingEventEnum.YieldStaked, 0]
   ])
 
   constructor (params: ThriveStakingOptions, stakingType: ThriveStakingType = ThriveStakingType.IERC20) {
@@ -125,7 +123,9 @@ export class ThriveStaking {
         yield: '0',
         timestamp: Date.now(),
         block: ev.log.blockNumber.toString(),
-        tx: ev.log.transactionHash
+        tx: ev.log.transactionHash,
+        fragment: ev.fragment,
+        log: ev
       })
     } else if (type === 'Withdrawn') {
       this.eventListener.emit(type, {
@@ -135,7 +135,9 @@ export class ThriveStaking {
         yield: args[2].toString(),
         timestamp: Date.now(),
         block: ev.log.blockNumber.toString(),
-        tx: ev.log.transactionHash
+        tx: ev.log.transactionHash,
+        fragment: ev.fragment,
+        log: ev
       })
     } else if (type === 'YieldClaimed') {
       this.eventListener.emit(type, {
@@ -143,10 +145,25 @@ export class ThriveStaking {
         user: args[0].toString(),
         amount: '0',
         yield: args[1].toString(),
-        epoch: args[2].toString(), // Added epoch field
+        epoch: args[2].toString(),
         timestamp: Date.now(),
         block: ev.log.blockNumber.toString(),
-        tx: ev.log.transactionHash
+        tx: ev.log.transactionHash,
+        fragment: ev.fragment,
+        log: ev
+      })
+    } else if (type === 'YieldStaked') {
+      this.eventListener.emit(type, {
+        type,
+        user: args[0].toString(),
+        amount: args[1].toString(),
+        yield: 0,
+        epoch: args[2].toString(),
+        timestamp: Date.now(),
+        block: ev.log.blockNumber.toString(),
+        tx: ev.log.transactionHash,
+        fragment: ev.fragment,
+        log: ev
       })
     }
   }
@@ -154,8 +171,8 @@ export class ThriveStaking {
   public onContractEvent (type: ThriveStakingEventKey, listener: ThriveStakingEventListener) {
     this.eventListener.addListener(type, listener)
     const count = this.eventListenerCount.get(type) || 0
-    if (count === 0) {
-      this.contract?.on(type, this.eventListenerFunc.bind(this))
+    if (count === 0 && this.contract) {
+      this.contract.on(type, this.eventListenerFunc.bind(this))
     }
     this.eventListenerCount.set(type, count + 1)
   }
@@ -164,13 +181,15 @@ export class ThriveStaking {
     if (listener) {
       this.eventListener.removeListener(eventType, listener)
       const count = (this.eventListenerCount.get(eventType) || 1) - 1
-      if (count === 0) {
-        this.contract?.off(eventType)
+      if (count === 0 && this.contract) {
+        this.contract?.off(eventType, this.eventListenerFunc.bind(this))
       }
       this.eventListenerCount.set(eventType, count)
     } else {
       this.eventListener.removeAllListeners(eventType)
-      this.contract?.off(eventType)
+      if (this.contract) {
+        this.contract?.off(eventType, this.eventListenerFunc.bind(this))
+      }
       this.eventListenerCount.set(eventType, 0)
     }
   }
@@ -179,15 +198,14 @@ export class ThriveStaking {
     if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
-    let tx
+    let tx: ethers.ContractTransactionResponse
     if (this.stakingType === ThriveStakingType.NATIVE) {
       tx = await this.contract.stake(amount, { value: amount })
     } else {
       tx = await this.contract.stake(amount)
     }
-    await tx.wait()
-
-    return tx.hash
+    const receipt = await tx.wait()
+    return receipt!.hash
   }
 
   public async withdraw (): Promise<string> {
@@ -195,9 +213,8 @@ export class ThriveStaking {
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
     const tx = await this.contract.withdraw()
-    await tx.wait()
-
-    return tx.hash
+    const receipt = await tx.wait()
+    return receipt!.hash
   }
 
   public async claimYield (): Promise<string> {
@@ -205,9 +222,8 @@ export class ThriveStaking {
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
     const tx = await this.contract.claimYield()
-    await tx.wait()
-
-    return tx.hash
+    const receipt = await tx.wait()
+    return receipt!.hash
   }
 
   public async calculateYield (address?: string): Promise<{ claimableYield: string; ongoingYield: string }> {
@@ -215,9 +231,16 @@ export class ThriveStaking {
     const userAddress = address || this.getWalletAddress()
     const [claimableYield, ongoingYield] = await this.contract.calculateYield(userAddress)
     return {
-      claimableYield: claimableYield.toString(),
-      ongoingYield: ongoingYield.toString()
+      claimableYield: ethers.formatEther(claimableYield),
+      ongoingYield: ethers.formatEther(ongoingYield)
     }
+  }
+
+  public async getClaimableYieldInStorage (address?: string): Promise<string> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+    const userAddress = address || this.getWalletAddress()
+    const claimableYield = await this.contract.claimableYield(userAddress)
+    return ethers.formatEther(claimableYield)
   }
 
   public async setYieldRate (newYieldRate: string): Promise<string> {
@@ -225,9 +248,8 @@ export class ThriveStaking {
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
     const tx = await this.contract.setYieldRate(newYieldRate)
-    await tx.wait()
-
-    return tx.hash
+    const receipt = await tx.wait()
+    return receipt!.hash
   }
 
   public async setMinStakingAmount (newMin: string): Promise<string> {
@@ -235,16 +257,15 @@ export class ThriveStaking {
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
     const tx = await this.contract.setMinStakingAmount(newMin)
-    await tx.wait()
-
-    return tx.hash
+    const receipt = await tx.wait()
+    return receipt!.hash
   }
 
   public async getStakedAmount (user: string): Promise<string> {
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
     const amount = await this.contract.getStakedAmount(user)
-    return amount.toString()
+    return ethers.formatEther(amount)
   }
 
   public async getEpochEndTimestamp (user: string): Promise<string> {
@@ -252,5 +273,26 @@ export class ThriveStaking {
 
     const timestamp = await this.contract.getEpochEndTimestamp(user)
     return timestamp.toString()
+  }
+
+  // ** helpers **
+  public async approve (amount: string): Promise<string> {
+    if (!this.wallet) throw new ThriveWalletMissingError()
+    if (this.stakingType !== ThriveStakingType.IERC20) {
+      throw new Error('Approval only applies to IERC20 staking')
+    }
+
+    const tokenContract = new ethers.Contract(this.token, [
+      'function approve(address spender, uint256 amount) public returns (bool)'
+    ], this.wallet)
+    const tx = await tokenContract.approve(this.ierc20Address, amount)
+    const receipt = await tx.wait()
+    return receipt!.hash
+  }
+
+  public async getCurrentEpoch (): Promise<string> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+    const epoch = await this.contract.currentEpoch()
+    return epoch.toString()
   }
 }

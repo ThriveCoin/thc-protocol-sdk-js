@@ -3,7 +3,7 @@ import { ThriveProtocol, ThriveStakingType } from '../src'
 
 const main = async () => {
   const provider = new ethers.JsonRpcProvider(process.env.RPC_URL!)
-  const wallet = new ethers.Wallet(process.env.TEST_PRIVATE_KEY!, provider)
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider)
 
   const sdk = new ThriveProtocol({
     wallet,
@@ -12,11 +12,7 @@ const main = async () => {
       stakingType: ThriveStakingType.NATIVE,
       nativeAddress: process.env.NATIVE_STAKING_ADDRESS!,
       ierc20Address: process.env.IERC20_STAKING_ADDRESS!,
-      token: ethers.ZeroAddress,
-      yieldRate: '3858024691358',
-      minStakingAmount: ethers.parseEther('0.1').toString(),
-      accessControlEnumerable: process.env.ACCESS_CONTROL_ADDRESS!,
-      role: process.env.ADMIN_ROLE!
+      token: ethers.ZeroAddress
     }
   })
 
@@ -32,22 +28,23 @@ const main = async () => {
     console.log('Withdrawn:', event)
   })
 
+  sdk.thriveStaking.onContractEvent('YieldStaked', (event) => {
+    console.log('YieldStaked:', event)
+  })
+
   console.log('Staking 2 ETH...')
   const stakeTxHash = await sdk.thriveStaking.stake(ethers.parseEther('2').toString())
   console.log('Stake Transaction Hash:', stakeTxHash)
 
   console.log('Calculating yield earned immediately after staking...')
   const yieldEarned = await sdk.thriveStaking.calculateYield()
-  console.log('Claimable Yield (in wei):', yieldEarned.claimableYield)
-  console.log('Ongoing Yield (in wei):', yieldEarned.ongoingYield)
-  console.log('Claimable Yield (in Thrive):', ethers.formatEther(yieldEarned.claimableYield))
-  console.log('Ongoing Yield Earned (in Thrive):', ethers.formatEther(yieldEarned.ongoingYield))
+  console.log('Claimable Yield (in Thrive):', yieldEarned.claimableYield)
+  console.log('Ongoing Yield (in Thrive):', yieldEarned.ongoingYield)
 
   setTimeout(async () => {
     try {
       const yieldAfterOneMinute = await sdk.thriveStaking.calculateYield()
-      console.log('Yield after 1 minute (in wei):', yieldAfterOneMinute.ongoingYield)
-      console.log('Yield after 1 minute (in Thrive):', ethers.formatEther(yieldAfterOneMinute.ongoingYield))
+      console.log('Yield after 1 minute (in Thrive):', yieldAfterOneMinute.ongoingYield)
     } catch (error) {
       console.error('Error calculating yield after 1 minute:', error)
     }
@@ -56,16 +53,20 @@ const main = async () => {
   setTimeout(async () => {
     try {
       const yieldAfterTwoMinutes = await sdk.thriveStaking.calculateYield()
-      console.log('Yield after 2 minutes (in wei):', yieldAfterTwoMinutes)
-      console.log('Yield after 2 minutes (in Thrive):', ethers.formatEther(yieldAfterTwoMinutes.ongoingYield))
+      console.log('Yield after 2 minutes (in Thrive):', yieldAfterTwoMinutes)
 
       console.log('Claiming yield...')
       const claimTxHash = await sdk.thriveStaking.claimYield()
       console.log('Claim Yield Transaction Hash:', claimTxHash)
 
       const yieldAfterClaim = await sdk.thriveStaking.calculateYield()
-      console.log('Yield after claiming (in wei):', yieldAfterClaim)
-      console.log('Yield after claiming (in Thrive):', ethers.formatEther(yieldAfterClaim.ongoingYield))
+      console.log('Yield after claiming (in Thrive):', yieldAfterClaim)
+
+      const withdrawnHash = await sdk.thriveStaking.withdraw()
+      console.log('Withdraw tx hash: ', withdrawnHash)
+
+      const yieldAfterWithdraw = await sdk.thriveStaking.calculateYield()
+      console.log('Calculate Yield after withdraw (in Thrive):', yieldAfterWithdraw)
     } catch (error) {
       console.error('Error calculating yield after 2 minutes:', error)
     }

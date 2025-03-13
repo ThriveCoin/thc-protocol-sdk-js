@@ -15,19 +15,46 @@ import ThriveProviderTxNotFoundError from './errors/ThriveProviderTxNotFoundErro
  */
 export interface ThriveReviewOptions {
   workUnit: string
-  maximumSubmissions: number
-  maximumSubmissionsPerUser: number
-  submissionDeadline: number
-  reviewDeadlinePeriod: number
-  reviewCommitmentPeriod: number
-  minimumReviews: number
-  maximumReviewsPerSubmission: number
-  agreementThreshold: number
-  reviewerReward: string
   reviewerRewardsTotalAllocation: string
-  judgeBadges: string[]
-  reviewerBadges: string[]
+  reviewerReward: string
+  agreementThreshold: number
+  maximumSubmissionsPerUser: number
+  minimumReviews: number
+  maximumSubmissions: number
+  maximumReviewsPerSubmission: number
+  submissionDeadline: number
+  reviewCommitmentPeriod: number
+  reviewDeadlinePeriod: number
   submitterBadges: string[]
+  reviewerBadges: string[]
+  judgeBadges: string[]
+  disputeResolverBadges: string[]
+  reviewMetadata: string,
+  submissionMetadata: string
+}
+
+export interface Submission {
+  id: bigint; // uint256 in contract
+  reviewCount: number; // uint32 or similar, safe as number
+  acceptedReviewsCount: number;
+  rejectedReviewsCount: number;
+  reviewDeadline: number; // uint32 or uint256, number is fine for timestamps
+  disputeDeadline: number;
+  contributor: string; // address
+  submissionMetadata: string; // string
+  judgeDecisionMetadata: string;
+  decision: number; // uint8 (enum), number is fine
+  status: number; // uint8 (enum)
+}
+
+export interface Review {
+  id: bigint; // uint256
+  submissionId: bigint; // uint256
+  reviewer: string; // address
+  reviewMetadata: string; // string
+  commitmentDeadline: number; // uint32 or uint256
+  decision: number; // uint8 (enum)
+  status: number; // uint8 (enum)
 }
 
 /**
@@ -227,34 +254,17 @@ export class ThriveReview {
     if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.factoryContract) throw new Error('Factory contract is not deployed')
 
-    const tx = await this.factoryContract.createReviewContract(
-      reviewConfiguration,
-      thriveReviewOwner,
-      { value }
-    )
-    const receipt = await tx.wait()
-
-    const eventInterface = new ethers.Interface([
-      'event ReviewContractCreated(address indexed reviewContract)'
-    ])
-
-    let reviewContractAddress: string | null = null
-    receipt.logs.forEach((log: { topics: ReadonlyArray<string>; data: string }) => {
-      try {
-        const parsedLog = eventInterface.parseLog(log)
-        if (parsedLog?.name === 'ReviewContractCreated') {
-          reviewContractAddress = parsedLog.args.reviewContract
-        }
-      } catch (error) {
-        console.error(error)
-      }
-    })
-
-    if (!reviewContractAddress) {
-      throw new Error('Failed to retrieve new Review contract address')
+    const config = {
+      ...reviewConfiguration,
+      submitterBadges: this.convertToBytes32Array(reviewConfiguration.submitterBadges),
+      reviewerBadges: this.convertToBytes32Array(reviewConfiguration.reviewerBadges),
+      judgeBadges: this.convertToBytes32Array(reviewConfiguration.judgeBadges),
+      disputeResolverBadges: this.convertToBytes32Array(reviewConfiguration.disputeResolverBadges)
     }
 
-    return reviewContractAddress
+    const tx = await this.factoryContract.createReviewContract(config, thriveReviewOwner, { value })
+    await tx.wait()
+    return tx.hash
   }
 
   /**
@@ -408,14 +418,27 @@ export class ThriveReview {
   public async createSubmission (submissionMetadata: string, value: string): Promise<string> {
     if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.contract) throw new ThriveContractNotInitializedError()
-    const tx = await this.contract.createSubmission({ submissionMetadata }, { value })
 
+    const submission: Submission = {
+      id: BigInt(0), // Set by contract
+      reviewCount: 0, // Initialized by contract
+      acceptedReviewsCount: 0,
+      rejectedReviewsCount: 0,
+      reviewDeadline: 0, // Set by contract logic
+      disputeDeadline: 0,
+      contributor: ethers.ZeroAddress, // Set to sender by contract
+      submissionMetadata,
+      judgeDecisionMetadata: '',
+      decision: 0, // No decision yet
+      status: 1 // Pending status
+    }
+
+    const tx = await this.contract.createSubmission(submission, { value })
     await tx.wait()
-
     return tx.hash
   }
 
-  public async updateSubmission (submissionId: number, submissionMetadata: string): Promise<string> {
+  public async updateSubmission (submissionId: bigint, submissionMetadata: string): Promise<string> {
     if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.contract) throw new ThriveContractNotInitializedError()
     const tx = await this.contract.updateSubmission(submissionMetadata, submissionId)
@@ -425,7 +448,7 @@ export class ThriveReview {
     return tx.hash
   }
 
-  public async commitToReview (submissionId: number): Promise<string> {
+  public async commitToReview (submissionId: bigint): Promise<string> {
     if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.contract) throw new ThriveContractNotInitializedError()
     const tx = await this.contract.commitToReview(submissionId)
@@ -435,14 +458,22 @@ export class ThriveReview {
     return tx.hash
   }
 
-  public async submitReview (reviewId: number, decision: number, reviewMetadata: string): Promise<string> {
+  public async submitReview (reviewId: bigint, decision: number, reviewMetadata: string): Promise<string> {
     if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.contract) throw new ThriveContractNotInitializedError()
-    const review = { id: reviewId, decision, reviewMetadata }
+
+    const review: Review = {
+      id: reviewId, // Required, matches existing review
+      submissionId: BigInt(0), // Fetched by contract, not used from input
+      reviewer: ethers.ZeroAddress, // Set by contract (msg.sender)
+      reviewMetadata,
+      commitmentDeadline: 0, // Already set, not updated here
+      decision, // Review decision (e.g., 0 or 1)
+      status: 0 // Updated by contract
+    }
+
     const tx = await this.contract.submitReview(review)
-
     await tx.wait()
-
     return tx.hash
   }
 
@@ -590,5 +621,9 @@ export class ThriveReview {
   public async hasWorkerUnitContract (): Promise<boolean> {
     if (!this.contract) throw new ThriveContractNotInitializedError()
     return await this.contract.hasWorkerUnitContract()
+  }
+
+  private convertToBytes32Array (strings: string[]): string[] {
+    return strings.map(s => ethers.encodeBytes32String(s))
   }
 }

@@ -7,7 +7,8 @@ export declare enum ThriveStakingType {
 export declare enum ThriveStakingEventEnum {
     Staked = "Staked",
     Withdrawn = "Withdrawn",
-    YieldClaimed = "YieldClaimed"
+    YieldClaimed = "YieldClaimed",
+    YieldStaked = "YieldStaked"
 }
 export type ThriveStakingEventKey = keyof typeof ThriveStakingEventEnum;
 export interface ThriveStakingEvent {
@@ -29,10 +30,6 @@ export interface ThriveStakingOptions {
     nativeAddress: string;
     ierc20Address: string;
     token: string;
-    yieldRate: string;
-    minStakingAmount: string;
-    accessControlEnumerable: string;
-    role: string;
 }
 export declare class ThriveStaking {
     protected wallet?: ethers.Wallet;
@@ -44,7 +41,7 @@ export declare class ThriveStaking {
     protected stakingType: ThriveStakingType;
     protected eventInterface: ethers.Interface;
     protected eventListener: EventEmitter;
-    protected eventListenerCount: Map<"Staked" | "Withdrawn" | "YieldClaimed", number>;
+    protected eventListenerCount: Map<"Staked" | "Withdrawn" | "YieldClaimed" | "YieldStaked", number>;
     constructor(params: ThriveStakingOptions, stakingType?: ThriveStakingType);
     private initContract;
     setWallet(wallet: ethers.Wallet): void;
@@ -60,8 +57,11 @@ export declare class ThriveStaking {
         claimableYield: string;
         ongoingYield: string;
     }>;
+    getClaimableYieldInStorage(address?: string): Promise<string>;
     setYieldRate(newYieldRate: string): Promise<string>;
     setMinStakingAmount(newMin: string): Promise<string>;
     getStakedAmount(user: string): Promise<string>;
     getEpochEndTimestamp(user: string): Promise<string>;
+    approve(amount: string): Promise<string>;
+    getCurrentEpoch(): Promise<string>;
 }
