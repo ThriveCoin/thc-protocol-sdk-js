@@ -48,7 +48,7 @@
     ],
     "outputs": [
       {
-        "name": "claimableYield",
+        "name": "totalClaimableYield",
         "type": "uint256",
         "internalType": "uint256"
       },
@@ -62,6 +62,13 @@
     "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimableYield",
+    "inputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -177,6 +184,13 @@
     ],
     "outputs": [],
     "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "stakeYield",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -352,6 +366,31 @@
       },
       {
         "name": "yield",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "epoch",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "YieldStaked",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
