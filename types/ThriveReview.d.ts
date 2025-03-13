@@ -6,19 +6,44 @@ import { ThriveWorkerUnitOptions } from './ThriveWorkerUnit'
  */
 export interface ThriveReviewOptions {
     workUnit: string;
-    maximumSubmissions: number;
-    maximumSubmissionsPerUser: number;
-    submissionDeadline: number;
-    reviewDeadlinePeriod: number;
-    reviewCommitmentPeriod: number;
-    minimumReviews: number;
-    maximumReviewsPerSubmission: number;
-    agreementThreshold: number;
-    reviewerReward: string;
     reviewerRewardsTotalAllocation: string;
-    judgeBadges: string[];
-    reviewerBadges: string[];
+    reviewerReward: string;
+    agreementThreshold: number;
+    maximumSubmissionsPerUser: number;
+    minimumReviews: number;
+    maximumSubmissions: number;
+    maximumReviewsPerSubmission: number;
+    submissionDeadline: number;
+    reviewCommitmentPeriod: number;
+    reviewDeadlinePeriod: number;
     submitterBadges: string[];
+    reviewerBadges: string[];
+    judgeBadges: string[];
+    disputeResolverBadges: string[];
+    reviewMetadata: string;
+    submissionMetadata: string;
+}
+export interface Submission {
+    id: bigint;
+    reviewCount: number;
+    acceptedReviewsCount: number;
+    rejectedReviewsCount: number;
+    reviewDeadline: number;
+    disputeDeadline: number;
+    contributor: string;
+    submissionMetadata: string;
+    judgeDecisionMetadata: string;
+    decision: number;
+    status: number;
+}
+export interface Review {
+    id: bigint;
+    submissionId: bigint;
+    reviewer: string;
+    reviewMetadata: string;
+    commitmentDeadline: number;
+    decision: number;
+    status: number;
 }
 /**
  * Reviewer event names (matching the Solidity events)
@@ -137,9 +162,9 @@ export declare class ThriveReview {
      */
   offContractEvent(type: ThriveReviewEventEnum, listener?: ThriveReviewEventListener): void;
   createSubmission(submissionMetadata: string, value: string): Promise<string>;
-  updateSubmission(submissionId: number, submissionMetadata: string): Promise<string>;
-  commitToReview(submissionId: number): Promise<string>;
-  submitReview(reviewId: number, decision: number, reviewMetadata: string): Promise<string>;
+  updateSubmission(submissionId: bigint, submissionMetadata: string): Promise<string>;
+  commitToReview(submissionId: bigint): Promise<string>;
+  submitReview(reviewId: bigint, decision: number, reviewMetadata: string): Promise<string>;
   deletePendingReview(reviewId: number): Promise<string>;
   deletePendingReviews(reviewIds: number[]): Promise<string>;
   reachDecisionOnSubmissionAsJudge(submissionId: number, decision: number, judgeDecisionMetadata: string): Promise<string>;
@@ -156,4 +181,5 @@ export declare class ThriveReview {
   getSubmissionDecision(submissionId: number): Promise<string>;
   getSubmissionStatus(submissionId: number): Promise<string>;
   hasWorkerUnitContract(): Promise<boolean>;
+  private convertToBytes32Array
 }

@@ -37,10 +37,6 @@ export interface ThriveProtocolOptions {
         nativeAddress: string;
         ierc20Address: string;
         token: string;
-        yieldRate: string;
-        minStakingAmount: string;
-        accessControlEnumerable: string;
-        role: string;
     };
     oraclePrice?: {
         wallet?: ethers.Wallet;

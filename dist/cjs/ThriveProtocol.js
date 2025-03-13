@@ -45,11 +45,7 @@ class ThriveProtocol {
                 provider: this.provider,
                 nativeAddress: params.stake.nativeAddress,
                 ierc20Address: params.stake.ierc20Address,
-                token: params.stake.token,
-                yieldRate: params.stake.yieldRate,
-                minStakingAmount: params.stake.minStakingAmount,
-                accessControlEnumerable: params.stake.accessControlEnumerable,
-                role: params.stake.role
+                token: params.stake.token
             }, params.stake.stakingType);
         }
         if (params.oraclePrice) {
