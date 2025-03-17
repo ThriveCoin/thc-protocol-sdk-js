@@ -433,9 +433,9 @@ export class ThriveReview {
       status: 1 // Pending status
     }
 
-    const tx = await this.contract.createSubmission(submission, { value })
-    await tx.wait()
-    return tx.hash
+    const submissionId = await this.contract.createSubmission(submission, { value })
+
+    return submissionId
   }
 
   public async updateSubmission (submissionId: bigint, submissionMetadata: string): Promise<string> {
@@ -448,14 +448,28 @@ export class ThriveReview {
     return tx.hash
   }
 
-  public async commitToReview (submissionId: bigint): Promise<string> {
+  public async commitToReview (submissionId: bigint): Promise<{ txHash: string; reviewId: bigint }> {
     if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.contract) throw new ThriveContractNotInitializedError()
+
     const tx = await this.contract.commitToReview(submissionId)
 
-    await tx.wait()
+    const receipt = await tx.wait()
 
-    return tx.hash
+    for (const log of receipt.logs) {
+      try {
+        const parsed = this.eventInterface.parseLog(log)
+        if (parsed?.name === 'ReviewCommitted') {
+          const reviewId = BigInt(parsed.args.reviewId.toString())
+          return { txHash: receipt.transactionHash, reviewId }
+        }
+      } catch (error) {
+        console.error(error)
+        continue
+      }
+    }
+
+    throw new Error('ReviewCommitted event not found in transaction receipt')
   }
 
   public async submitReview (reviewId: bigint, decision: number, reviewMetadata: string): Promise<string> {
