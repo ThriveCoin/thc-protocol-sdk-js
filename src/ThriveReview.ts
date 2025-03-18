@@ -437,14 +437,11 @@ export class ThriveReview {
 
     const receipt = await tx.wait()
 
-    const eventInterface = new ethers.Interface([
-      'event SubmissionCreated(uint256 submissionId)'
-    ])
     for (const log of receipt.logs) {
       try {
-        const parsedLog = eventInterface.parseLog(log)
-        if (parsedLog?.name === 'SubmissionCreated') {
-          const submissionId = parsedLog.args.submissionId.toString()
+        const parsed = this.eventInterface.parseLog(log)
+        if (parsed?.name === 'SubmissionCreated') {
+          const submissionId = parsed.args.submissionId.toString()
           return submissionId
         }
       } catch (error) {
