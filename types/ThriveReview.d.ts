@@ -182,4 +182,5 @@ export declare class ThriveReview {
   getSubmissionStatus(submissionId: number): Promise<string>;
   hasWorkerUnitContract(): Promise<boolean>;
   private convertToBytes32Array
+  hasUserReachedMaxSubmissions(user: string): Promise<boolean>;
 }

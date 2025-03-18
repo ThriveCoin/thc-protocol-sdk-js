@@ -655,4 +655,14 @@ export class ThriveReview {
   private convertToBytes32Array (strings: string[]): string[] {
     return strings.map(s => ethers.encodeBytes32String(s))
   }
+
+  public async hasUserReachedMaxSubmissions (user: string): Promise<boolean> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+    const userSubmissions = await this.contract.userSubmissions(user)
+    const userSubmissionsLength = userSubmissions.length
+    const reviewConfiguration = await this.contract.reviewConfiguration()
+    const maxSubmissionsPerUser = reviewConfiguration.maximumSubmissionsPerUser
+
+    return userSubmissionsLength >= maxSubmissionsPerUser
+  }
 }

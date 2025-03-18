@@ -519,5 +519,14 @@ class ThriveReview {
     convertToBytes32Array(strings) {
         return strings.map(s => ethers_1.ethers.encodeBytes32String(s));
     }
+    async hasUserReachedMaxSubmissions(user) {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError_1.default();
+        const userSubmissions = await this.contract.userSubmissions(user);
+        const userSubmissionsLength = userSubmissions.length;
+        const reviewConfiguration = await this.contract.reviewConfiguration();
+        const maxSubmissionsPerUser = reviewConfiguration.maximumSubmissionsPerUser;
+        return userSubmissionsLength >= maxSubmissionsPerUser;
+    }
 }
 exports.ThriveReview = ThriveReview;
