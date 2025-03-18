@@ -319,8 +319,21 @@ export class ThriveReview {
             status: 1 // Pending status
         };
         const tx = await this.contract.createSubmission(submission, { value });
-        await tx.wait();
-        return tx.hash;
+        const receipt = await tx.wait();
+        for (const log of receipt.logs) {
+            try {
+                const parsed = this.eventInterface.parseLog(log);
+                if (parsed?.name === 'SubmissionCreated') {
+                    const submissionId = parsed.args.submissionId.toString();
+                    return submissionId;
+                }
+            }
+            catch (error) {
+                console.error(error);
+                continue;
+            }
+        }
+        throw new Error('SubmissionCreated event not found in transaction receipt');
     }
     async updateSubmission(submissionId, submissionMetadata) {
         if (!this.wallet)
@@ -337,8 +350,21 @@ export class ThriveReview {
         if (!this.contract)
             throw new ThriveContractNotInitializedError();
         const tx = await this.contract.commitToReview(submissionId);
-        await tx.wait();
-        return tx.hash;
+        const receipt = await tx.wait();
+        for (const log of receipt.logs) {
+            try {
+                const parsed = this.eventInterface.parseLog(log);
+                if (parsed?.name === 'ReviewCommitted') {
+                    const reviewId = parsed.args.reviewId.toString();
+                    return reviewId;
+                }
+            }
+            catch (error) {
+                console.error(error);
+                continue;
+            }
+        }
+        throw new Error('ReviewCommitted event not found in transaction receipt');
     }
     async submitReview(reviewId, decision, reviewMetadata) {
         if (!this.wallet)
