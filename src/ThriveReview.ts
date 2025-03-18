@@ -656,7 +656,7 @@ export class ThriveReview {
     return strings.map(s => ethers.encodeBytes32String(s))
   }
 
-  public async hasUserReachedMaxSubmissions (user: string): Promise<boolean> {
+  public async userHasReachedMaxSubmissions (user: string): Promise<boolean> {
     if (!this.contract) throw new ThriveContractNotInitializedError()
     const userSubmissions = await this.contract.userSubmissions(user)
     const userSubmissionsLength = userSubmissions.length

@@ -513,7 +513,7 @@ export class ThriveReview {
     convertToBytes32Array(strings) {
         return strings.map(s => ethers.encodeBytes32String(s));
     }
-    async hasUserReachedMaxSubmissions(user) {
+    async userHasReachedMaxSubmissions(user) {
         if (!this.contract)
             throw new ThriveContractNotInitializedError();
         const userSubmissions = await this.contract.userSubmissions(user);
