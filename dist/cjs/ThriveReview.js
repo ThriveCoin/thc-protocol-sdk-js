@@ -324,8 +324,25 @@ class ThriveReview {
             decision: 0, // No decision yet
             status: 1 // Pending status
         };
-        const submissionId = await this.contract.createSubmission(submission, { value });
-        return submissionId;
+        const tx = await this.contract.createSubmission(submission, { value });
+        const receipt = await tx.wait();
+        const eventInterface = new ethers_1.ethers.Interface([
+            "event SubmissionCreated(uint256 submissionId)"
+        ]);
+        for (const log of receipt.logs) {
+            try {
+                const parsedLog = eventInterface.parseLog(log);
+                if (parsedLog?.name === 'SubmissionCreated') {
+                    const submissionId = parsedLog.args.submissionId.toString();
+                    return submissionId;
+                }
+            }
+            catch (error) {
+                console.error(error);
+                continue;
+            }
+        }
+        throw new Error('SubmissionCreated event not found in transaction receipt');
     }
     async updateSubmission(submissionId, submissionMetadata) {
         if (!this.wallet)
