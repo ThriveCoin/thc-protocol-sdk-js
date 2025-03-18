@@ -355,8 +355,8 @@ export class ThriveReview {
             try {
                 const parsed = this.eventInterface.parseLog(log);
                 if (parsed?.name === 'ReviewCommitted') {
-                    const reviewId = BigInt(parsed.args.reviewId.toString());
-                    return { txHash: receipt.transactionHash, reviewId };
+                    const reviewId = parsed.args.reviewId.toString();
+                    return reviewId;
                 }
             }
             catch (error) {

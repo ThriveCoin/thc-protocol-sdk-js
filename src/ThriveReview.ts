@@ -463,7 +463,7 @@ export class ThriveReview {
     return tx.hash
   }
 
-  public async commitToReview (submissionId: bigint): Promise<{ txHash: string; reviewId: bigint }> {
+  public async commitToReview (submissionId: bigint): Promise<string> {
     if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.contract) throw new ThriveContractNotInitializedError()
 
@@ -475,8 +475,8 @@ export class ThriveReview {
       try {
         const parsed = this.eventInterface.parseLog(log)
         if (parsed?.name === 'ReviewCommitted') {
-          const reviewId = BigInt(parsed.args.reviewId.toString())
-          return { txHash: receipt.transactionHash, reviewId }
+          const reviewId = parsed.args.reviewId.toString()
+          return reviewId
         }
       } catch (error) {
         console.error(error)

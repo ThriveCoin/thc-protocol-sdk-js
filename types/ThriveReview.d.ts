@@ -163,11 +163,7 @@ export declare class ThriveReview {
   offContractEvent(type: ThriveReviewEventEnum, listener?: ThriveReviewEventListener): void;
   createSubmission(submissionMetadata: string, value: string): Promise<string>;
   updateSubmission(submissionId: bigint, submissionMetadata: string): Promise<string>;
-  commitToReview(submissionId: bigint): Promise<{
-        txHash: string;
-        reviewId: bigint;
-    }>;
-
+  commitToReview(submissionId: bigint): Promise<string>;
   submitReview(reviewId: bigint, decision: number, reviewMetadata: string): Promise<string>;
   deletePendingReview(reviewId: number): Promise<string>;
   deletePendingReviews(reviewIds: number[]): Promise<string>;
