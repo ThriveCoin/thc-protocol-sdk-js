@@ -528,5 +528,13 @@ class ThriveReview {
         const maxSubmissionsPerUser = reviewConfiguration.maximumSubmissionsPerUser;
         return userSubmissionsLength >= maxSubmissionsPerUser;
     }
+    async maxSubmissionsHasReached() {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError_1.default();
+        const submissionCount = await this.contract.submissionCounter();
+        const reviewConfiguration = await this.contract.reviewConfiguration();
+        const maxSubmissions = reviewConfiguration.maximumSubmissions;
+        return submissionCount >= maxSubmissions;
+    }
 }
 exports.ThriveReview = ThriveReview;
