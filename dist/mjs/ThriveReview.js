@@ -513,4 +513,21 @@ export class ThriveReview {
     convertToBytes32Array(strings) {
         return strings.map(s => ethers.encodeBytes32String(s));
     }
+    async userHasReachedMaxSubmissions(user) {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError();
+        const userSubmissions = await this.contract.userSubmissions(user);
+        const userSubmissionsLength = userSubmissions.length;
+        const reviewConfiguration = await this.contract.reviewConfiguration();
+        const maxSubmissionsPerUser = reviewConfiguration.maximumSubmissionsPerUser;
+        return userSubmissionsLength >= maxSubmissionsPerUser;
+    }
+    async maxSubmissionsHasReached() {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError();
+        const submissionCount = await this.contract.submissionCounter();
+        const reviewConfiguration = await this.contract.reviewConfiguration();
+        const maxSubmissions = reviewConfiguration.maximumSubmissions;
+        return submissionCount >= maxSubmissions;
+    }
 }
