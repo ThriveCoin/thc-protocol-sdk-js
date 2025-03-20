@@ -658,8 +658,7 @@ export class ThriveReview {
 
   public async userHasReachedMaxSubmissions (user: string): Promise<boolean> {
     if (!this.contract) throw new ThriveContractNotInitializedError()
-    const userSubmissions = await this.contract.userSubmissions(user)
-    const userSubmissionsLength = userSubmissions.length
+    const userSubmissionsLength = await this.contract.getUserSubmissionsArrayLength(user)
     const reviewConfiguration = await this.contract.reviewConfiguration()
     const maxSubmissionsPerUser = reviewConfiguration.maximumSubmissionsPerUser
 
