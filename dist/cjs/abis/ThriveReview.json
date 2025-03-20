@@ -231,6 +231,15 @@
     },
     {
         "type": "function",
+        "name": "getSubmissionReviewsArrayLength",
+        "inputs": [
+            { "name": "submissionId", "type": "uint256", "internalType": "uint256" }
+        ],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
         "name": "getSubmissionStatus",
         "inputs": [
             {
@@ -246,6 +255,15 @@
                 "internalType": "enum IThriveReview.SubmissionStatus"
             }
         ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getUserSubmissionsArrayLength",
+        "inputs": [
+            { "name": "user", "type": "address", "internalType": "address" }
+        ],
+        "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
         "stateMutability": "view"
     },
     {
