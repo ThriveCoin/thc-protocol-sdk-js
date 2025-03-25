@@ -189,4 +189,5 @@ export declare class ThriveReview {
   maxCommitsReached(submissionId: number): Promise<boolean>;
   getSubmission(submissionId: number): Promise<Submission>;
   userInvolvedInSubmission(user: string, submissionId: number): Promise<boolean>;
+  getReview(reviewId: number): Promise<Review>;
 }

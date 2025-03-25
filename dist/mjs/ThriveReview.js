@@ -558,4 +558,9 @@ export class ThriveReview {
             throw new ThriveContractNotInitializedError();
         return await this.contract.userInvolvedInSubmission(user, submissionId);
     }
+    async getReview(reviewId) {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError();
+        return await this.contract.reviews(reviewId);
+    }
 }

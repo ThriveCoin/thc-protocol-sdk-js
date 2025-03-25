@@ -708,4 +708,10 @@ export class ThriveReview {
 
     return await this.contract.userInvolvedInSubmission(user, submissionId)
   }
+
+  public async getReview (reviewId: number): Promise<Review> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    return await this.contract.reviews(reviewId)
+  }
 }
