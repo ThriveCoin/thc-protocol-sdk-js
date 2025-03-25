@@ -656,11 +656,17 @@ export class ThriveReview {
     return strings.map(s => ethers.encodeBytes32String(s))
   }
 
+  public async getReviewConfiguration (): Promise<ThriveReviewOptions> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+    const reviewConfiguration = await this.contract.reviewConfiguration()
+
+    return reviewConfiguration
+  }
+
   public async userHasReachedMaxSubmissions (user: string): Promise<boolean> {
     if (!this.contract) throw new ThriveContractNotInitializedError()
-    const userSubmissions = await this.contract.userSubmissions(user)
-    const userSubmissionsLength = userSubmissions.length
-    const reviewConfiguration = await this.contract.reviewConfiguration()
+    const userSubmissionsLength = await this.contract.getUserSubmissionsArrayLength(user)
+    const reviewConfiguration = await this.getReviewConfiguration()
     const maxSubmissionsPerUser = reviewConfiguration.maximumSubmissionsPerUser
 
     return userSubmissionsLength >= maxSubmissionsPerUser
@@ -669,9 +675,43 @@ export class ThriveReview {
   public async maxSubmissionsHasReached (): Promise<boolean> {
     if (!this.contract) throw new ThriveContractNotInitializedError()
     const submissionCount = await this.contract.submissionCounter()
-    const reviewConfiguration = await this.contract.reviewConfiguration()
+    const reviewConfiguration = await this.getReviewConfiguration()
     const maxSubmissions = reviewConfiguration.maximumSubmissions
 
     return submissionCount >= maxSubmissions
+  }
+
+  public async userCommittedToReview (user: string, submissionId: number): Promise<boolean> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    return await this.contract.userCommittedToReview(user, submissionId)
+  }
+
+  public async maxCommitsReached (submissionId: number): Promise<boolean> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    const commitsCounter = await this.contract.committedReviewsPerSubmissionCounter(submissionId)
+    const reviewConfiguration = await this.getReviewConfiguration()
+    const maxCommitsPerSubmission = reviewConfiguration.maximumReviewsPerSubmission
+
+    return commitsCounter >= maxCommitsPerSubmission
+  }
+
+  public async getSubmission (submissionId: number): Promise<Submission> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    return await this.contract.idToSubmission(submissionId)
+  }
+
+  public async userInvolvedInSubmission (user: string, submissionId: number): Promise<boolean> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    return await this.contract.userInvolvedInSubmission(user, submissionId)
+  }
+
+  public async getReview (reviewId: number): Promise<Review> {
+    if (!this.contract) throw new ThriveContractNotInitializedError()
+
+    return await this.contract.reviews(reviewId)
   }
 }

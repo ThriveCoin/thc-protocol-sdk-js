@@ -513,12 +513,17 @@ export class ThriveReview {
     convertToBytes32Array(strings) {
         return strings.map(s => ethers.encodeBytes32String(s));
     }
+    async getReviewConfiguration() {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError();
+        const reviewConfiguration = await this.contract.reviewConfiguration();
+        return reviewConfiguration;
+    }
     async userHasReachedMaxSubmissions(user) {
         if (!this.contract)
             throw new ThriveContractNotInitializedError();
-        const userSubmissions = await this.contract.userSubmissions(user);
-        const userSubmissionsLength = userSubmissions.length;
-        const reviewConfiguration = await this.contract.reviewConfiguration();
+        const userSubmissionsLength = await this.contract.getUserSubmissionsArrayLength(user);
+        const reviewConfiguration = await this.getReviewConfiguration();
         const maxSubmissionsPerUser = reviewConfiguration.maximumSubmissionsPerUser;
         return userSubmissionsLength >= maxSubmissionsPerUser;
     }
@@ -526,8 +531,36 @@ export class ThriveReview {
         if (!this.contract)
             throw new ThriveContractNotInitializedError();
         const submissionCount = await this.contract.submissionCounter();
-        const reviewConfiguration = await this.contract.reviewConfiguration();
+        const reviewConfiguration = await this.getReviewConfiguration();
         const maxSubmissions = reviewConfiguration.maximumSubmissions;
         return submissionCount >= maxSubmissions;
+    }
+    async userCommittedToReview(user, submissionId) {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError();
+        return await this.contract.userCommittedToReview(user, submissionId);
+    }
+    async maxCommitsReached(submissionId) {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError();
+        const commitsCounter = await this.contract.committedReviewsPerSubmissionCounter(submissionId);
+        const reviewConfiguration = await this.getReviewConfiguration();
+        const maxCommitsPerSubmission = reviewConfiguration.maximumReviewsPerSubmission;
+        return commitsCounter >= maxCommitsPerSubmission;
+    }
+    async getSubmission(submissionId) {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError();
+        return await this.contract.idToSubmission(submissionId);
+    }
+    async userInvolvedInSubmission(user, submissionId) {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError();
+        return await this.contract.userInvolvedInSubmission(user, submissionId);
+    }
+    async getReview(reviewId) {
+        if (!this.contract)
+            throw new ThriveContractNotInitializedError();
+        return await this.contract.reviews(reviewId);
     }
 }
