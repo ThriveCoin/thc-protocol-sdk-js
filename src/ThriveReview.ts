@@ -4,6 +4,7 @@ import { ThriveWorkerUnitOptions } from './ThriveWorkerUnit'
 
 import ThriveReviewABI from './abis/ThriveReview.json'
 import ThriveReviewFactoryABI from './abis/ThriveReviewFactory.json'
+import ERC20ABI from './abis/ERC20.json'
 
 import ThriveWalletMissingError from './errors/ThriveWalletMissingError'
 import ThriveProviderMissingError from './errors/ThriveProviderMissingError'
@@ -201,6 +202,11 @@ export class ThriveReview {
   ): Promise<{ reviewContract: string; workUnitContract: string }> {
     if (!this.wallet) throw new ThriveWalletMissingError()
     if (!this.factoryContract) throw new Error('Factory contract is not deployed')
+    if (workUnitArgs.rewardToken && workUnitArgs.rewardToken !== ethers.ZeroAddress) {
+      const tokenContract = new ethers.Contract(workUnitArgs.rewardToken, ERC20ABI, this.wallet)
+      const approvalTx = await tokenContract.approve(this.factoryAddress, workUnitArgs.maxRewards)
+      await approvalTx.wait()
+    }
 
     const tx = await this.factoryContract.createWorkUnitAndReviewContract(
       workUnitArgs,
