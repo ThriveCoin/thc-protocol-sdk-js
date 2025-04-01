@@ -8,6 +8,7 @@ const ethers_1 = require("ethers");
 const events_1 = require("events");
 const ThriveReview_json_1 = __importDefault(require("./abis/ThriveReview.json"));
 const ThriveReviewFactory_json_1 = __importDefault(require("./abis/ThriveReviewFactory.json"));
+const ERC20_json_1 = __importDefault(require("./abis/ERC20.json"));
 const ThriveWalletMissingError_1 = __importDefault(require("./errors/ThriveWalletMissingError"));
 const ThriveProviderMissingError_1 = __importDefault(require("./errors/ThriveProviderMissingError"));
 const ThriveContractNotInitializedError_1 = __importDefault(require("./errors/ThriveContractNotInitializedError"));
@@ -100,6 +101,11 @@ class ThriveReview {
             throw new ThriveWalletMissingError_1.default();
         if (!this.factoryContract)
             throw new Error('Factory contract is not deployed');
+        if (workUnitArgs.rewardToken && workUnitArgs.rewardToken !== ethers_1.ethers.ZeroAddress) {
+            const tokenContract = new ethers_1.ethers.Contract(workUnitArgs.rewardToken, ERC20_json_1.default, this.wallet);
+            const approvalTx = await tokenContract.approve(this.factoryAddress, workUnitArgs.maxRewards);
+            await approvalTx.wait();
+        }
         const tx = await this.factoryContract.createWorkUnitAndReviewContract(workUnitArgs, reviewConfiguration, thriveReviewOwner, { value });
         const receipt = await tx.wait();
         const eventInterface = new ethers_1.ethers.Interface([
